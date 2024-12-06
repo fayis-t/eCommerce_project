@@ -143,7 +143,7 @@ const userRegistration = async (req, res) => {
           console.log(error);
      }
  }
- 
+  
 
  const loadProductDetails = async(req, res) => {
      try {

@@ -1,0 +1,177 @@
+<%- include('../adminLayouts/header.ejs') %>
+    <%- include('../adminLayouts/pageHeader.ejs') %>
+
+        <section class="content-main">
+            <div class="content-header">
+                <div>
+                    <h2 class="content-title card-title">Products List</h2>
+                    <p>Lorem ipsum dolor sit amet.</p>
+                </div>
+                <div>
+                    <a href="/admin/addProduct" class="btn btn-primary btn-sm rounded">Create new</a>
+                </div>
+            </div>
+            <div class="card mb-4">
+                <header class="card-header">
+                    <div class="row align-items-center">
+                        <div class="col-md-3 col-12 me-auto mb-md-0 mb-3">
+                            <select class="form-select">
+                                <option selected>All category</option>
+                                <option>Men's</option>
+                                <option>Ladies's</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 col-6">
+                            <input type="date" value="02.05.2021" class="form-control" />
+                        </div>
+                        <div class="col-md-2 col-6">
+                            <select class="form-select">
+                                <option selected>Status</option>
+                                <option>Active</option>
+                                <option>Disabled</option>
+                                <option>Show all</option>
+                            </select>
+                        </div>
+                    </div>
+                </header>
+                <!-- card-header end// -->
+                <div class="card-body">
+                    <% products.map(product => { %>
+                        <article class="itemlist">
+                            <div class="row align-items-center">
+                                <div class="col col-check flex-grow-0">
+                                </div>
+                                <div class="col-lg-4 col-sm-4 col-8 flex-grow-1 col-name">
+                                    <a class="itemside" href="#">
+                                        <div class="left">
+                                            <img src="/uploads/<%= product.images[0] %>" class="img-sm img-thumbnail" alt="Item" />
+                                        </div>
+                                        <div class="info">
+                                            <h6 class="mb-0"><%= product.name %></h6>
+                                        </div>
+                                    </a>
+                                </div>
+                                <div class="col-lg-2 col-sm-2 col-4 col-price"><span>₹ <%= product.price %></span></div>
+                                <div class="col-lg-2 col-sm-2 col-4 col-date">
+                                    <% 
+                                    const formatDate = (date) => {
+                                      const d = new Date(date);
+                                      const day = String(d.getDate()).padStart(2, '0'); // dd
+                                      const month = String(d.getMonth() + 1).padStart(2, '0'); // mm
+                                      const year = String(d.getFullYear()).slice(-2); // yy
+                                      return `${day}-${month}-${year}`;
+                                    };
+                                  %>
+                                    <span><%= formatDate(product.createdAt) %></span>
+                                </div>
+                                <div class="col-lg-1 col-sm-2 col-4 col-status">
+                                    <% if(product.is_listed){ %>
+                                  <span class="badge rounded-pill alert-success"
+                                      id="status-<%= product._id %>">Active</span>
+                                    <% }else{ %>
+                                        <span class="badge rounded-pill alert-danger"
+                                            id="status-<%= product._id %>">Disabled</span>
+                                    <% } %>      
+                                </div>
+                                <div class="col-lg-2 col-sm-2 col-4 col-action text-end">
+                                    <a href="/admin/editProduct/<%= product._id %>" class="btn btn-sm font-sm rounded btn-brand"> <i
+                                            class="material-icons md-edit"></i> Edit </a>
+                                <% if(product.is_listed){ %>            
+                                    <a href="#"
+                                     class="btn btn-sm font-sm btn-danger rounded font-sm"
+                                     onclick="listProduct(`<%= product._id %>`)",
+                                     id="list-<%= product._id %>"> Disable </a>
+                                <% }else{ %>
+                                    <a href="#"
+                                     class="btn btn-sm font-sm btn-success rounded font-sm"
+                                     onclick="listProduct(`<%= product._id %>`)",
+                                     id="list-<%= product._id %>"> Activate </a>
+                                <% } %>              
+                                </div>
+                            </div>
+                        </article>
+                    <% }) %>
+                </div>
+                <!-- card-body end// -->
+            </div>
+            <!-- card end// -->
+            <div class="pagination-area mt-30 mb-50">
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination justify-content-start">
+                        <li class="page-item active"><a class="page-link" href="#">01</a></li>
+                        <li class="page-item"><a class="page-link" href="#">02</a></li>
+                        <li class="page-item"><a class="page-link" href="#">03</a></li>
+                        <li class="page-item"><a class="page-link dot" href="#">...</a></li>
+                        <li class="page-item"><a class="page-link" href="#">16</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#"><i class="material-icons md-chevron_right"></i></a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </section>
+
+<script>
+
+    function listProduct(productId){
+        Swal.fire({
+            title: `Do you want to change product status? `,
+            showCancelButton: true,
+            confirmButtonText: 'Yes'
+        }).then((result) => {
+            if(result.isConfirmed){
+                fetch(`/admin/listProduct?id=${productId}`,{
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'}
+                })
+                .then((response) => {
+                    if(!response.ok){
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then((data) => {
+                    console.log('Server response:', data);
+
+                    if(data.success === true){
+                        const button = document.getElementById(`list-${productId}`);
+                        const status = document.getElementById(`status-${productId}`);
+
+                        if(button.classList.contains('btn-danger')){
+                            button.classList.remove('btn-danger');
+                            button.classList.add('btn-success');
+                            button.innerHTML = 'Activate';
+
+                            status.classList.remove('alert-success');
+                            status.classList.add('alert-danger');
+                            status.innerHTML = 'Disabled';
+
+                            Swal.fire('Disabled', '','success');
+                        }else{
+                            button.classList.remove('btn-success');
+                            button.classList.add('btn-danger');
+                            button.innerHTML = 'Disable';
+
+                            status.classList.remove('alert-danger');
+                            status.classList.add('alert-success');
+                            status.innerHTML = 'Active';
+
+                            Swal.fire('Active', '', 'success');
+                        }
+                    }else{
+                        swal.fire('Failed to change the status', '', 'error');
+                    }
+                })
+                .catch((error) => {
+                    console.error('Fetch error:', error);
+                    Swal.fire('An error occurred', '', 'error');
+                })
+            }
+        });
+    }
+
+</script>    
+
+
+        <%- include('../adminLayouts/pageFooter.ejs') %>
+            <%- include('../adminLayouts/footer.ejs') %>

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTP Verification</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+
+        .container {
+            display: flex;
+            width: 90%;
+            max-width: 900px;
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .image-section {
+            flex: 1;
+            background-image: url('images/ladies_watch.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .otp-section {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .otp-section h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .otp-section p {
+            margin: 10px 0;
+            color: #777;
+        }
+
+        .otp-inputs {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .otp-inputs input {
+            width: 50px;
+            height: 50px;
+            text-align: center;
+            font-size: 24px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .timer {
+            color: #e74c3c;
+            margin-bottom: 10px;
+        }
+
+        .submit-btn {
+            background-color: #333;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .resend {
+            margin-top: 10px;
+            color: #e74c3c;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="image-section"></div>
+        <div class="otp-section">
+            <h2>Verification</h2>
+            <p>You will get an OTP via Email</p>
+            <input type="hidden" id="email" name="email" value="<%= email %>" />
+            <div class="otp-inputs">
+                <input type="text" maxlength="1" id="digit1">
+                <input type="text" maxlength="1" id="digit2">
+                <input type="text" maxlength="1" id="digit3">
+                <input type="text" maxlength="1" id="digit4">
+            </div>
+            <div class="timer" id="timer">Time out in 1:59 seconds</div>
+            <button class="submit-btn" onclick="submitOTP()">Submit</button>
+        
+            <div class="resend" onclick="resendOTP()">Resend OTP</div>
+        </div>
+    </div>
+
+
+    <script>
+        // Timer
+        let time = 119; // 1:59 seconds
+        const timerElement = document.getElementById('timer');
+        const interval = setInterval(() => {
+            const minutes = Math.floor(time / 60);
+            const seconds = time % 60;
+            timerElement.textContent = `Time out in ${minutes}:${seconds < 10 ? '0' : ''}${seconds} seconds`;
+            time--;
+            if (time < 0) clearInterval(interval);
+        }, 1000);
+
+        // Submit OTP
+        function submitOTP() {
+    const email = document.getElementById('email').value;
+    const otp = [
+        document.getElementById('digit1').value,
+        document.getElementById('digit2').value,
+        document.getElementById('digit3').value,
+        document.getElementById('digit4').value
+    ].join('');
+
+    fetch('/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ otp, email })
+    })
+        .then(response => response.json())
+        .then(data => {
+            
+            if (data.success) {
+                window.location.href = '/login';
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Incorrect OTP',
+                    text: 'Please try again with the correct OTP.'
+                });
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+
+        // Resend OTP
+        function resendOTP() {
+            fetch('/resend-otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) alert('OTP Resent');
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    </script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+</body>
+</html>

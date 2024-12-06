@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Profile</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css">
+</head>
+<body style="background: linear-gradient(135deg, #e0f7fa, #80deea); font-family: Arial, sans-serif;">
+  <div class="container my-5">
+    <div class="row">
+      <!-- Left Navigation Bar -->
+      <div class="col-md-3">
+        <div class="card" style="border: none; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); background: #00897b; color: white;">
+          <div class="card-body text-center">
+            <img src="https://via.placeholder.com/80" alt="User Avatar" style="width: 80px; height: 80px; object-fit: cover; border-radius: 50%; margin-bottom: 15px; border: 2px solid white;">
+            <h5 id="profileNameDisplay" style="font-weight: bold;">John Doe</h5>
+            <p id="profileEmailDisplay" style="color: #b2dfdb;">user@example.com</p>
+          </div>
+        </div>
+        <div class="nav flex-column nav-pills mt-3" id="profileTabs" role="tablist" aria-orientation="vertical">
+          <button class="nav-link active" id="user-profile-tab" data-bs-target="#userProfile" type="button" role="tab" style="border-radius: 5px; font-weight: bold; color: white; background-color: #00796b; margin-bottom: 10px;">User Profile</button>
+          <button class="nav-link" id="address-tab" data-bs-target="#address" type="button" role="tab" style="border-radius: 5px; font-weight: bold; color: white; background-color: #00796b; margin-bottom: 10px;">Manage Address</button>
+          <button class="nav-link" id="orders-tab" data-bs-target="#orders" type="button" role="tab" style="border-radius: 5px; font-weight: bold; color: white; background-color: #00796b; margin-bottom: 10px;">Orders</button>
+          <button class="nav-link" id="password-tab" data-bs-target="#password" type="button" role="tab" style="border-radius: 5px; font-weight: bold; color: white; background-color: #00796b; margin-bottom: 10px;">Change Password</button>
+          <button class="nav-link text-danger" id="logout-tab" type="button" style="border-radius: 5px; font-weight: bold; color: white; background-color: #d32f2f;">Logout</button>
+        </div>
+      </div>
+
+      <!-- Main Content -->
+      <div class="col-md-9">
+        <!-- User Profile Section -->
+        <div id="userProfile" class="content-section active" style="display: block;">
+          <div class="card" style="border: none; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);">
+            <div class="card-header" style="background: #00897b; color: white;">
+              <h5>User Profile</h5>
+            </div>
+            <div class="card-body">
+              <form id="editProfileForm">
+                <div class="mb-3">
+                  <label for="profileName" class="form-label">Name</label>
+                  <input type="text" class="form-control" id="profileName" value="John Doe" style="border-radius: 5px; border-color: #b2dfdb;">
+                </div>
+                <div class="mb-3">
+                  <label for="profileEmail" class="form-label">Email</label>
+                  <input type="email" class="form-control" id="profileEmail" value="user@example.com" style="border-radius: 5px; border-color: #b2dfdb;">
+                </div>
+                <div class="mb-3">
+                  <label for="profileMobile" class="form-label">Mobile</label>
+                  <input type="text" class="form-control" id="profileMobile" value="9876543210" style="border-radius: 5px; border-color: #b2dfdb;">
+                </div>
+                <button type="submit" class="btn btn-primary" style="background: #00796b; border: none;">Save Changes</button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Manage Address Section -->
+        <div id="address" class="content-section" style="display: none;">
+          <div class="card" style="border: none; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);">
+            <div class="card-header" style="background: #00897b; color: white;">
+              <h5>Manage Address</h5>
+            </div>
+            <div class="card-body">
+              <div id="addressList">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <p style="margin: 0;">123, Main Street, City, State, ZIP</p>
+                  <div>
+                    <button class="btn btn-outline-primary btn-sm" style="border-color: #80cbc4; color: #00796b;">Edit</button>
+                    <button class="btn btn-danger btn-sm" style="background-color: #d32f2f; border: none;">Delete</button>
+                  </div>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <p style="margin: 0;">456, Second Street, City, State, ZIP</p>
+                  <div>
+                    <button class="btn btn-outline-primary btn-sm" style="border-color: #80cbc4; color: #00796b;">Edit</button>
+                    <button class="btn btn-danger btn-sm" style="background-color: #d32f2f; border: none;">Delete</button>
+                  </div>
+                </div>
+              </div>
+              <button class="btn btn-primary btn-sm" id="addAddressBtn" style="background: #00796b; border: none;">Add New Address</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Orders Section -->
+        <div id="orders" class="content-section" style="display: none;">
+          <div class="card" style="border: none; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);">
+            <div class="card-header" style="background: #00897b; color: white;">
+              <h5>Orders</h5>
+            </div>
+            <div class="card-body">
+              <ul class="list-group">
+                <li class="list-group-item d-flex justify-content-between align-items-center" style="border-color: #80cbc4;">
+                  Order #12345 - $99.99
+                  <button class="btn btn-danger btn-sm" style="background-color: #d32f2f; border: none;">Cancel Order</button>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center" style="border-color: #80cbc4;">
+                  Order #67890 - $49.99
+                  <button class="btn btn-danger btn-sm" style="background-color: #d32f2f; border: none;">Cancel Order</button>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Change Password Section -->
+        <div id="password" class="content-section" style="display: none;">
+          <div class="card" style="border: none; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);">
+            <div class="card-header" style="background: #00897b; color: white;">
+              <h5>Change Password</h5>
+            </div>
+            <div class="card-body">
+              <form>
+                <div class="mb-3">
+                  <label for="currentPassword" class="form-label">Current Password</label>
+                  <input type="password" class="form-control" id="currentPassword" style="border-radius: 5px; border-color: #b2dfdb;">
+                </div>
+                <div class="mb-3">
+                  <label for="newPassword" class="form-label">New Password</label>
+                  <input type="password" class="form-control" id="newPassword" style="border-radius: 5px; border-color: #b2dfdb;">
+                </div>
+                <button type="submit" class="btn btn-primary" style="background: #00796b; border: none;">Update Password</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const tabs = document.querySelectorAll('.nav-link');
+      const sections = document.querySelectorAll('.content-section');
+
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          const targetId = tab.getAttribute('data-bs-target');
+          tabs.forEach(t => t.classList.remove('active'));
+          sections.forEach(s => s.style.display = 'none');
+          tab.classList.add('active');
+          document.querySelector(targetId).style.display = 'block';
+        });
+      });
+
+      document.getElementById('logout-tab').addEventListener('click', () => {
+        alert('Logged out successfully.');
+        window.location.href = '/login';
+      });
+    });
+  </script>
+</body>
+</html>

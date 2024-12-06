@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login</title>
+</head>
+<body style="background-color: #d4edda; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0;">
+
+    <!-- Admin Login Form -->
+    <div style="background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); width: 90%; max-width: 400px;">
+        <h2 style="text-align: center; margin-bottom: 20px; color: #28a745;">Admin Login</h2>
+        
+         <!-- Error/Success Message -->
+         <div id="message" style="display: none; margin-bottom: 15px; font-size: 0.9rem;"></div>
+
+        <form id="loginForm" novalidate>
+            <!-- Email Input -->
+            <label for="email" style="display: block; margin-bottom: 8px;">Email:</label>
+            <input type="email" id="email" name="email" required placeholder="Enter your email" 
+                   style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ced4da; border-radius: 4px;">
+
+            <!-- Password Input -->
+            <label for="password" style="display: block; margin-bottom: 8px;">Password:</label>
+            <input type="password" id="password" name="password" required placeholder="Enter your password" 
+                   style="width: 100%; padding: 10px; margin-bottom: 20px; border: 1px solid #ced4da; border-radius: 4px;">
+
+            <!-- Submit Button -->
+            <button type="submit" 
+                    style="width: 100%; background-color: #28a745; color: white; padding: 12px; border: none; border-radius: 4px; cursor: pointer;">
+                Login
+            </button>
+        </form>
+    </div>
+
+    <script>
+        // JavaScript to handle form submission without page reload
+document.getElementById('loginForm').addEventListener('submit', async function(event) {
+   event.preventDefault(); // Prevent the form from submitting normally
+
+   const messageDiv = document.getElementById('message');
+   messageDiv.style.display = 'none'; // Hide message by default
+
+   // Collect form data
+   const formData = new FormData(this);
+   const data = Object.fromEntries(formData.entries());
+
+   try {
+       // Send the form data using fetch
+       const response = await fetch('/admin/login', {
+           method: 'POST',
+           headers: { 'Content-Type': 'application/json' },
+           body: JSON.stringify(data)
+       });
+
+       // Parse the JSON response
+       const result = await response.json();
+
+       // Display message
+       messageDiv.style.display = 'block';
+       if (response.ok) {
+           // Redirect to the home page
+           window.location.href = '/admin/dashboard';
+       } else {
+           messageDiv.textContent = result.error || 'Login failed. Please try again.';
+           messageDiv.style.color = 'red';
+       }
+   } catch (error) {
+       console.error('Error:', error);
+       messageDiv.textContent = 'An error occurred. Please try again.';
+       messageDiv.style.display = 'block';
+       messageDiv.style.color = 'red';
+   }
+});
+   </script>
+</body>
+</html>

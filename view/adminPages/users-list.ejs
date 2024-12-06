@@ -1,0 +1,188 @@
+<%- include('../adminLayouts/header.ejs') %>
+    <%- include('../adminLayouts/pageHeader.ejs') %>
+
+        <section class="content-main">
+            <div class="content-header">
+                <h2 class="content-title">Users list</h2>
+            </div>
+            <div class="card mb-4">
+                <header class="card-header">
+                    <div class="row gx-3">
+                        <div class="col-lg-4 col-md-6 me-auto">
+                            <input type="text" placeholder="Search..." class="form-control" />
+                        </div>
+                        <div class="col-lg-2 col-md-3 col-6">
+                            <select class="form-select">
+                                <option>Status</option>
+                                <option>Active</option>
+                                <option>Disabled</option>
+                                <option>Show all</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-2 col-md-3 col-6">
+                            <select class="form-select">
+                                <option>Show 20</option>
+                                <option>Show 30</option>
+                                <option>Show 40</option>
+                            </select>
+                        </div>
+                    </div>
+                </header>
+                <!-- card-header end// -->
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>name</th>
+                                    <th>Email</th>
+                                    <th>Status</th>
+                                    <th>Registered</th>
+                                    <th class="text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if(users && users.length> 0) { %>
+                                    <% users.forEach((user, index)=> { %>
+                                        <tr>
+                                            <td width="40%">
+                                                <a href="#" class="itemside">
+                                                    <div class="left">
+                                                        <img src="/assets/imgs/people/avatar-1.png"
+                                                            class="img-sm img-avatar" alt="Userpic" />
+                                                    </div>
+                                                    <div class="info pl-3">
+                                                        <h6 class="mb-0 title">
+                                                            <%= user.name %>
+                                                        </h6>
+                                                        <small class="text-muted">Seller ID: #439</small>
+                                                    </div>
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <%= user.email %>
+                                            </td>
+                                            <td>
+                                                <% if(!user.is_blocked){ %>
+                                                    <span class="badge rounded-pill alert-success"
+                                                        id="status-<%= user._id %>">Active</span>
+                                            </td>
+                                            <% }else{ %>
+                                                <span class="badge rounded-pill alert-danger"
+                                                    id="status-<%= user._id %>">Inactive</span></td>
+                                                <% } %>
+
+                                                    <td>
+                                                        <%= new Date(user.createdAt).toLocaleDateString('en-US', {
+                                                            year: 'numeric' , month: 'long' , day: 'numeric' }) %>
+                                                    </td>
+
+                                                    <td class="text-end">
+                                                        <% if(!user.is_blocked){ %>
+                                                            <a href="#"
+                                                                class="btn btn-sm btn-danger rounded font-sm mt-15"
+                                                                onclick="blockUser(`<%= user._id %>`)" ,
+                                                                id="block-<%= user._id  %>">Block</a>
+                                                            <% }else{ %>
+                                                                <a href="#"
+                                                                    class="btn btn-sm btn-success rounded font-sm mt-15"
+                                                                    onclick="blockUser(`<%= user._id %>`)" ,
+                                                                    id="block-<%= user._id  %>">Unblock</a>
+                                                            <% } %>
+                                                    </td>
+                                        </tr>
+                                        <% }) %>
+                                            <% } else { %>
+                                                <tr>
+                                                    <td colspan="5" class="text-center">No users found</td>
+                                                </tr>
+                                                <% } %>
+                            </tbody>
+                        </table>
+                        <!-- table-responsive.// -->
+                    </div>
+                </div>
+                <!-- card-body end// -->
+            </div>
+            <!-- card end// -->
+            <div class="pagination-area mt-15 mb-50">
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination justify-content-start">
+                        <li class="page-item active"><a class="page-link" href="#">01</a></li>
+                        <li class="page-item"><a class="page-link" href="#">02</a></li>
+                        <li class="page-item"><a class="page-link" href="#">03</a></li>
+                        <li class="page-item"><a class="page-link dot" href="#">...</a></li>
+                        <li class="page-item"><a class="page-link" href="#">16</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#"><i class="material-icons md-chevron_right"></i></a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </section>
+        <!-- content-main end// -->
+
+        <script>
+            function blockUser(userId) {
+                Swal.fire({
+                    title: ` Do you want to change user's status? `,
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes'
+
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch(`/admin/blockUser?id=${userId}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                        })
+                            .then((response) => {
+                                // Check if the response is ok (HTTP status code in the range 200-299)
+                                if (!response.ok) {
+                                    throw new Error('Network response was not ok');
+                                }
+                                return response.json();
+                            })
+                            .then((data) => {
+                                console.log('Server response:', data);
+
+                                if (data.success === true) {
+                                    const button = document.getElementById(`block-${userId}`);
+                                    const status = document.getElementById(`status-${userId}`);
+
+                                    if (button.classList.contains('btn-danger')) {
+                                        button.classList.remove('btn-danger');
+                                        button.classList.add('btn-success');
+                                        button.innerHTML = 'Unblock';
+
+                                        status.classList.remove('alert-success');
+                                        status.classList.add('alert-danger');
+                                        status.innerHTML = 'Inactive';
+
+                                        Swal.fire('Blocked', '', 'success');
+                                    } else {
+                                        button.classList.remove('btn-success');
+                                        button.classList.add('btn-danger');
+                                        button.innerHTML = 'Block';
+
+                                        status.classList.remove('alert-danger');
+                                        status.classList.add('alert-success');
+                                        status.innerHTML = 'Active';
+
+                                        Swal.fire('Unblocked', '', 'success');
+                                    }
+                                } else {
+                                    Swal.fire('Failed to change the status', '', 'error');
+                                }
+                            })
+                            .catch((error) => {
+                                console.error('Fetch error:', error);
+                                Swal.fire('An error occurred', '', 'error');
+                            });
+                    }
+                });
+            }
+
+        </script>
+
+        <%- include('../adminLayouts/pageFooter.ejs') %>
+            <%- include('../adminLayouts/footer.ejs') %>

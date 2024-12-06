@@ -1,0 +1,137 @@
+<%- include('../adminLayouts/header.ejs') %>
+    <%- include('../adminLayouts/pageHeader.ejs') %>
+
+        <!-- <link href="https://unpkg.com/cropperjs/dist/cropper.css" rel="stylesheet" /> -->
+
+        <style>
+            .cropper-container {
+                width: 100%;
+                max-height: 400px;
+                margin-bottom: 10px;
+            }
+
+            .modal-content {
+                margin: 10% auto;
+                padding: 20px;
+                width: 80%;
+                max-width: 600px;
+                background-color: #363636;
+            }
+
+            .image-preview {
+                width: 100px;
+                /* Adjust preview size as needed */
+                height: auto;
+                margin-top: 10px;
+            }
+
+            #cropperModal {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                z-index: 1000;
+            }
+        </style>
+
+        <section class="content-main">
+            <div class="row">
+                <div class="col-12">
+                    <div class="content-header text-center">
+                        <h2 class="content-title">Edit Category</h2>
+                    </div>
+                </div>
+                <div class="col-lg-8 mx-auto">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <form id="categoryForm" enctype="multipart/form-data">
+                                <div class="mb-4">
+                                    <input type="hidden" value="<%= category.id %>" id="categoryId" />
+                                    <label for="category_name" class="form-label">Category Name</label>
+                                    <input type="text" placeholder="Type here" class="form-control" id="category_name"
+                                        name="name" required value="<%= category.name %>" />
+                                    <div class="error-message text-danger" id="nameError"></div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="form-label">Description</label>
+                                    <textarea placeholder="Type here" id="category_description" name="description"
+                                        class="form-control" rows="4" required><%= category.description %></textarea>
+                                    <div class="error-message text-danger" id="descriptionError"></div>
+                                </div>
+
+                                <!-- <div class="mb-4">
+                                    <label class="form-label">Category</label>
+                                    <select id="category" name="category" class="form-select" required>
+                                        <% if (categories && categories.length> 0) { %>
+                                            <% categories.forEach((category)=> { %>
+                                                <option value="<%= category._id %>" <%=category.category===category._id
+                                                    ? 'selected' : '' %>
+                                                    >
+                                                    <%= category.name %>
+                                                </option>
+                                                <% }) %>
+                                                    <% } %>
+                                    </select>
+                                </div> -->
+
+                                <div class="text-center">
+                                    <button type="submit" class="btn btn-primary btn-md rounded font-sm hover-up">
+                                        Save Changes
+                                    </button>
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <script>
+            // Form Submission
+            document.getElementById('categoryForm').addEventListener('submit', async function (event) {
+                event.preventDefault();
+
+                const formData = new FormData();
+                formData.name = document.getElementById('category_name').value;
+                formData.description= document.getElementById('category_description').value;
+
+                console.log("form data is ",formData);
+
+                const categoryId = document.getElementById('categoryId').value;
+
+                console.log("product is is s===>",categoryId);
+                console.log("final for is ===>",formData);
+                
+                try {
+                    const response = await fetch(`/admin/editCategory/${categoryId}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({formData})
+                        
+                    });
+
+                    console.log("responce is ",response);
+                    
+                    if (response.ok) {
+                        Swal.fire('Category Updated Successfully', '', 'success').then(() => {
+                            window.location.href = '/admin/category';
+                        });
+                    } else {
+                        const error = await response.json();
+                        console.error('Error:', error);
+                        Swal.fire('Something Went Wrong!', error.error || '', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            });
+        </script>
+
+        <%- include('../adminLayouts/pageFooter.ejs') %>
+            <%- include('../adminLayouts/footer.ejs') %>

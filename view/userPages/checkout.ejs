@@ -1,0 +1,379 @@
+<%- include('../userLayouts/header.ejs') %>
+<%- include('../userLayouts/pageHeader.ejs') %>
+
+<style>
+  .checkout-container {
+    padding: 50px 20px;
+    max-width: 1200px;
+    margin: auto;
+    background-color: #fafafa;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .checkout-wrapper {
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+  }
+
+  .checkout-form,
+  .order-summary {
+    flex: 1;
+    background: #fff;
+    padding: 25px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+
+  .checkout-form h2,
+  .order-summary h2 {
+    margin-bottom: 25px;
+    font-size: 20px;
+    color: #333;
+    font-weight: bold;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: #555;
+    font-weight: 600;
+  }
+
+  .form-group input,
+  .form-group select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    box-sizing: border-box;
+  }
+
+  .btn {
+    background: #007bff;
+    color: #fff;
+    padding: 12px 18px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 6px;
+    transition: background-color 0.3s ease;
+  }
+
+  .btn:hover {
+    background: #0056b3;
+  }
+
+  .btn-primary {
+    width: 100%;
+    font-size: 18px;
+  }
+
+  .order-summary .summary-item,
+  .order-summary .summary-total {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    font-size: 16px;
+    color: #333;
+  }
+
+  .summary-total {
+    font-weight: bold;
+    font-size: 18px;
+    color: #000;
+  }
+
+  .place-order-btn {
+    background: #28a745;
+    width: 100%;
+    font-size: 18px;
+    color: white;
+    font-weight: bold;
+    padding: 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: none;
+    margin-top: 20px;
+    transition: background-color 0.3s ease;
+  }
+
+  .place-order-btn:hover {
+    background-color: #218838;
+  }
+
+  .existing-addresses h3 {
+    font-size: 18px;
+    color: #333;
+    margin-bottom: 15px;
+  }
+
+  .address-item {
+    padding: 10px;
+    background: #f9f9f9;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+  }
+
+  .address-item input {
+    margin-right: 15px;
+  }
+
+  .address-item label {
+    font-size: 14px;
+    color: #555;
+  }
+
+  hr {
+    border: 1px solid #ddd;
+    margin: 20px 0;
+  }
+</style>
+
+<div class="checkout-container" style="padding-top: 100px;">
+  <h1>Checkout</h1>
+  <div class="checkout-wrapper">
+    <!-- Left Section: Billing Details -->
+    <div class="checkout-form">
+      <h2>Billing Details</h2>
+
+      <!-- Existing Addresses -->
+      <% if (addresses && addresses.length > 0) { %>
+        <div class="existing-addresses">
+          <h3>Saved Addresses</h3>
+          <% addresses.forEach((address, index) => { %>
+            <div class="address-item">
+              <input
+                type="radio"
+                id="address-<%= index %>"
+                name="selectedAddress"
+                value="<%= address._id %>"
+                <%= index === 0 ? 'checked' : '' %>
+              />
+              <label for="address-<%= index %>">
+                <strong><%= address.name %></strong><br>
+                <%= address.address %>, <%= address.city %>, <%= address.state %> - <%= address.pincode %><br>
+                <%= address.country %> | Mobile: <%= address.mobile %>
+              </label>
+            </div>
+          <% }) %>
+        </div>
+        <hr />
+      <% } %>
+
+      <!-- New Address Form -->
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addAddressLabel">Add New Address</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="addAddressForm" novalidate>
+            <!-- Form Fields -->
+            <div class="mb-3">
+              <label for="name" class="form-label">Full name (first and last name)</label>
+              <input type="text" class="form-control" id="name" required />
+              <small id="nameError" class="text-danger error-message"></small>
+            </div>
+            <div class="mb-3">
+              <label for="mobile" class="form-label">Mobile number</label>
+              <input type="number" class="form-control" id="mobile" required />
+              <small id="mobileError" class="text-danger error-message"></small>
+            </div>
+            <div class="mb-3">
+              <label for="pincode" class="form-label">Pincode</label>
+              <input type="number" class="form-control" id="pincode" required />
+              <small id="pincodeError" class="text-danger error-message"></small>
+            </div>
+            <div class="mb-3">
+              <label for="address" class="form-label">Flat, House, Building, Company, Apartment</label>
+              <input type="text" class="form-control" id="addresses" rows="2" required />
+              <small id="addressError" class="text-danger error-message"></small>
+            </div>
+            <div class="mb-3">
+              <label for="city" class="form-label">Town/City</label>
+              <input type="text" class="form-control" id="city" required />
+              <small id="cityError" class="text-danger error-message"></small>
+            </div>
+            <div class="mb-3">
+              <label for="state" class="form-label">State</label>
+              <input type="text" class="form-control" id="state" required />
+              <small id="stateError" class="text-danger error-message"></small>
+            </div>
+            <div class="mb-3">
+              <label for="country" class="form-label">Country</label>
+              <input type="text" class="form-control" id="country" required />
+              <small id="countryError" class="text-danger error-message"></small>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary" id="saveNewAddressBtn">Save Address</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Section: Order Summary -->
+    <div class="order-summary">
+      <h2>Order Summary</h2>
+      <!-- Product Details -->
+      <div class="product-summary">
+        <% cartData.items.forEach(item => { %>
+          <div class="summary-item">
+            <span><%= item.productId.name %> (x<%= item.quantity %>)</span>
+            <span>₹<%= item.quantity * item.productId.price %></span>
+          </div>
+        <% }) %>
+      </div>
+      <hr />
+      <!-- Subtotal -->
+      <div class="summary-item">
+        <span>Subtotal</span>
+        <span>₹<%= totalPrice %></span>
+      </div>
+      <!-- Shipping -->
+      <div class="summary-item">
+        <span>Shipping</span>
+        <span>Free</span>
+      </div>
+      <!-- Total -->
+      <div class="summary-total">
+        <span>Total</span>
+        <span>₹<%= totalPrice %></span>
+      </div>
+
+      <!-- Payment Option -->
+<div class="form-group">
+    <label for="paymentOption">Payment Option</label>
+    <select id="paymentOption" name="paymentOption" class="form-control">
+      <option value="COD">Cash on Delivery (COD)</option>
+      <!-- Add other payment options here if needed -->
+    </select>
+  </div>
+  
+
+      <!-- Place Order Button -->
+      <button class="place-order-btn" id="placeOrderBtn">Place Order</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Handle save new address functionality
+document.getElementById('saveNewAddressBtn').addEventListener('click', () => {
+  const name = document.getElementById('name').value;
+  const address = document.getElementById('addresses').value;
+  const country = document.getElementById('country').value;
+  const city = document.getElementById('city').value;
+  const state = document.getElementById('state').value;
+  const pincode = document.getElementById('pincode').value;
+  const mobile = document.getElementById('mobile').value;
+
+  let isValid = true;
+
+  // Clear previous error messages
+  document.querySelectorAll('.error-message').forEach((el) => (el.textContent = ''));
+
+  // Validate fields
+  if (!name) {
+    document.getElementById('nameError').textContent = 'Name is required.';
+    isValid = false;
+  }
+  if (!address) {
+    document.getElementById('addressError').textContent = 'Address is required.';
+    isValid = false;
+  }
+  if (!country) {
+    document.getElementById('countryError').textContent = 'Country is required.';
+    isValid = false;
+  }
+  if (!city) {
+    document.getElementById('cityError').textContent = 'City is required.';
+    isValid = false;
+  }
+  if (!state) {
+    document.getElementById('stateError').textContent = 'State is required.';
+    isValid = false;
+  }
+  if (!pincode || isNaN(pincode) || pincode.length !== 6) {
+    document.getElementById('pincodeError').textContent = 'Valid 6-digit pincode is required.';
+    isValid = false;
+  }
+  if (!mobile || isNaN(mobile) || mobile.length !== 10) {
+    document.getElementById('mobileError').textContent = 'Valid 10-digit mobile number is required.';
+    isValid = false;
+  }
+
+  if (isValid) {
+    fetch('/addAddress', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, address, country, city, state, pincode, mobile }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          Swal.fire('New Address Added', '', 'success')
+        //   .then(() => location.reload());
+          document.getElementById('addAddressForm').reset();
+        } else {
+          Swal.fire('Something 5667went wrong!', data.message || '', 'error');
+        }
+      })
+      .catch((error) => {
+        console.error('Error adding address:', error);
+        Swal.fire('Something wenbhght wrong!', '', 'error');
+      });
+  }
+});
+
+// Handle place order button functionality
+document.getElementById('placeOrderBtn').addEventListener('click', () => {
+    // Get selected address
+    const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked').value;
+    
+    // Get selected payment option
+    const paymentOption = document.getElementById('paymentOption').value;
+
+    // Ensure that an address is selected and a payment option is chosen
+    if (!selectedAddress || !paymentOption) {
+        Swal.fire('Please select an address and payment option before placing the order.');
+        return;
+    }
+
+    // Send the selected address and payment option to the backend
+    fetch('/placeOrder', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ selectedAddress, paymentOption })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire('Order placed successfully!', '', 'success');
+            // Optionally, reload the page or redirect to another page
+        } else {
+            Swal.fire('Failed to place order!', data.message || '', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error placing order:', error);
+        Swal.fire('Something went wrong!', '', 'error');
+    });
+});
+
+</script>
+
+<%- include('../userLayouts/pageFooter.ejs') %>
+<%- include('../userLayouts/footer.ejs') %>

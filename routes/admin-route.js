@@ -3,7 +3,7 @@ const router = express();
 const { adminLogin, loadDashboard, loadUserList, blockUser, loadLogin } = require('../controller/adminController');
 const { loadCategory, addCategory, listCategory, editCategory, loadEditCategory } = require('../controller/categoryController');
 const { loadProductList, loadAddProduct, addProduct, loadEditProduct, editProduct, listProduct } = require('../controller/productController');
-const { loadOrderList } = require('../controller/orderController');
+const { loadOrderList, adminOrderDetails, changeOrderStatus } = require('../controller/orderController');
 const { uploadMultiple } = require('../middlewares/multer');
 const { ensureAdmin } = require('../middlewares/auth');
 
@@ -34,7 +34,7 @@ router.get('/editProduct/:id', ensureAdmin, loadEditProduct);
 router.post('/editProduct/:id', ensureAdmin, uploadMultiple, editProduct);
 
 router.get('/orders', ensureAdmin, loadOrderList);
-
-
+router.get('/orderDetails/:id', ensureAdmin, adminOrderDetails);
+router.post('/api/orders/:orderId/status', changeOrderStatus);
 
 module.exports = router;

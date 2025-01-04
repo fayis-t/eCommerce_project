@@ -1,194 +1,258 @@
 <%- include('../adminLayouts/header.ejs') %>
-<%- include('../adminLayouts/pageHeader.ejs') %>
+    <%- include('../adminLayouts/pageHeader.ejs') %>
 
-<section class="content-main">
-    <div class="content-header">
-        <div>
-            <h2 class="content-title card-title">Categories</h2>
-            <p>Add, Edit & List/Unlist a category</p>
-        </div>
-        <div>
-            <input type="text" placeholder="Search Categories" class="form-control bg-white" />
-        </div>
-    </div>
-    <div class="card">
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-3">
-                    <div id="message" style="display: none; margin-bottom: 15px; font-size: 0.9rem;"></div>
-                    <form id="categoryForm" novalidate>
-                        <div class="mb-4">
-                            <label for="product_name" class="form-label">Name</label>
-                            <input type="text" placeholder="Type here" class="form-control" id="categoryName" />
-                        </div>
-                        <div class="mb-4">
-                            <label class="form-label">Description</label>
-                            <textarea placeholder="Type here" class="form-control" id="categoryDescription"></textarea>
-                        </div>
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary">Create category</button>
-                        </div>
-                    </form>
+        <section class="content-main">
+            <div class="content-header">
+                <div>
+                    <h2 class="content-title card-title">Categories</h2>
+                    <p>Add, Edit & List/Unlist a category</p>
                 </div>
-                <div class="col-md-9">
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>SI No.</th>
-                                    <th>Name</th>
-                                    <th>Description</th>
-                                    <th>Status</th>
-                                    <th class="text-end">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <% if(categories && categories.length> 0) { %>
-                                    <% categories.forEach((category, index = 0)=> { %>
-                                <tr>
-                                    <td><%= index + 1 %></td>
-                                    <td><b><%= category.name %></b></td>
-                                    <td><%= category.description %></td>
-                                    <td>
-                                        <% if(category.is_listed){ %>
-                                            <span class="badge rounded-pill alert-success"
-                                                id="status-<%= category._id %>">Listed</span>
-                                    </td>
-                                    <% }else{ %>
-                                       <span class="badge rounded-pill alert-danger"
-                                            id="status-<%= category._id %>">Unlisted</span></td>
-                                        <% } %>
-                                    <td class="text-end">
-                                                <a href="/admin/editCategory/<%= category._id %>"
-                                                    class="btn btn-sm btn-warning rounded font-sm mt-15">Edit</a>
-                                            <% if(category.is_listed){ %>
-                                                <a href="#"
-                                                    class="btn btn-sm btn-danger rounded font-sm mt-15" 
-                                                    onclick="listCategory(`<%= category._id %>`)",
-                                                    id="list-<%= category._id %>">Unlist</a>
-                                             <% }else{ %>
-                                                <a href="#"
-                                                    class="btn btn-sm btn-success rounded font-sm mt-15" 
-                                                    onclick="listCategory(`<%= category._id %>`)",
-                                                    id="list-<%= category._id %>">List</a>
-                                            <% } %>    
-                                    </td>
-                                </tr>
-                                <% }) %>
-                                <% } %>
-                            </tbody>
-                        </table>
-                    </div>
+                <div>
+                    <input type="text" placeholder="Search Categories" class="form-control bg-white" />
                 </div>
-                <!-- .col// -->
             </div>
-            <!-- .row // -->
-        </div>
-        <!-- card body .// -->
-    </div>
-    <!-- card .// -->
-</section>
-<!-- content-main end// -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div id="message" style="display: none; margin-bottom: 15px; font-size: 0.9rem;"></div>
+                            <form id="categoryForm" novalidate>
+                                <div class="mb-4">
+                                    <label for="product_name" class="form-label">Name</label>
+                                    <input type="text" placeholder="Type here" class="form-control" id="categoryName" />
+                                    <div class="error-message text-danger" id="nameError"></div>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label">Description</label>
+                                    <textarea placeholder="Type here" class="form-control"
+                                        id="categoryDescription"></textarea>
+                                    <div class="error-message text-danger" id="descriptionError"></div>
+                                </div>
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-primary">Create category</button>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="col-md-9">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>SI No.</th>
+                                            <th>Name</th>
+                                            <th>Description</th>
+                                            <th>Status</th>
+                                            <th class="text-end">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% if(categories && categories.length> 0) { %>
+                                            <% categories.forEach((category, index=0)=> { %>
+                                                <tr>
+                                                    <td>
+                                                        <%= index + 1 %>
+                                                    </td>
+                                                    <td><b>
+                                                            <%= category.name %>
+                                                        </b></td>
+                                                    <td>
+                                                        <%= category.description %>
+                                                    </td>
+                                                    <td>
+                                                        <% if(category.is_listed){ %>
+                                                            <span class="badge rounded-pill alert-success"
+                                                                id="status-<%= category._id %>">Listed</span>
+                                                    </td>
+                                                    <% }else{ %>
+                                                        <span class="badge rounded-pill alert-danger"
+                                                            id="status-<%= category._id %>">Unlisted</span></td>
+                                                        <% } %>
+                                                            <td class="text-end">
+                                                                <a href="/admin/editCategory/<%= category._id %>"
+                                                                    class="btn btn-sm btn-warning rounded font-sm mt-15">Edit</a>
+                                                                <% if(category.is_listed){ %>
+                                                                    <a href="#"
+                                                                        class="btn btn-sm btn-danger rounded font-sm mt-15"
+                                                                        onclick="listCategory(`<%= category._id %>`)" ,
+                                                                        id="list-<%= category._id %>">Unlist</a>
+                                                                    <% }else{ %>
+                                                                        <a href="#"
+                                                                            class="btn btn-sm btn-success rounded font-sm mt-15"
+                                                                            onclick="listCategory(`<%= category._id %>`)"
+                                                                            , id="list-<%= category._id %>">List</a>
+                                                                        <% } %>
+                                                            </td>
+                                                </tr>
+                                                <% }) %>
+                                                    <% } %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <!-- .col// -->
+                    </div>
+                    <!-- .row // -->
+                </div>
+                <!-- card body .// -->
+            </div>
+            <!-- card .// -->
+        </section>
+        <!-- content-main end// -->
 
-<script>
+        <script>
 
-    document.getElementById('categoryForm').addEventListener('submit', async function (event) {
-        event.preventDefault();
+            document.getElementById('categoryForm').addEventListener('submit', async function (event) {
+                event.preventDefault();
 
-        const messageDiv = document.getElementById('message');
-        messageDiv.style.display = 'none';
+                const validated = validateCategoryForm();
 
-        const categoryName = document.getElementById('categoryName').value.trim();
-        const categoryDescription = document.getElementById('categoryDescription').value.trim();
-        console.log(categoryName, categoryDescription);
-      
-        try {
-            const response = await fetch('/admin/addCategory', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({categoryName, categoryDescription})
-        });
+                if (validated){
+                    const messageDiv = document.getElementById('message');
+                    messageDiv.style.display = 'none';
 
-         const result = await response.json();
+                    const categoryName = document.getElementById('categoryName').value.trim();
+                    const categoryDescription = document.getElementById('categoryDescription').value.trim();
 
-         messageDiv.style.display = 'block';
-        if (response.ok) {
-            window.location.reload();
-        } else {
-            messageDiv.textContent = result.error || 'Adding category Failed. Please try again.';
-            messageDiv.style.color = 'red';
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        messageDiv.textContent = 'An error occurred. Please try again.';
-        messageDiv.style.display = 'block';
-        messageDiv.style.color = 'red';
-    }
-    })    
+                    try {
+                        const response = await fetch('/admin/addCategory', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ categoryName, categoryDescription })
+                        });
 
+                        const result = await response.json();
 
-    function listCategory(categoryId) {
-        Swal.fire({
-            title: ` Do you want to change category status? `,
-            showCancelButton: true,
-            confirmButtonText: 'Yes'
-
-        }).then((result) => {
-            if (result.isConfirmed) {
-                fetch(`/admin/listCategory?id=${categoryId}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                })
-                    .then((response) => {
-                        // Check if the response is ok (HTTP status code in the range 200-299)
-                        if (!response.ok) {
-                            throw new Error('Network response was not ok');
-                        }
-                        return response.json();
-                    })
-                    .then((data) => {
-                        console.log('Server response:', data);
-
-                        if (data.success === true) {
-                            const button = document.getElementById(`list-${categoryId}`);
-                            const status = document.getElementById(`status-${categoryId}`);
-
-                            if (button.classList.contains('btn-danger')) {
-                                button.classList.remove('btn-danger');
-                                button.classList.add('btn-success');
-                                button.innerHTML = 'List';
-
-                                status.classList.remove('alert-success');
-                                status.classList.add('alert-danger');
-                                status.innerHTML = 'Unlisted';
-
-                                Swal.fire('Unlisted', '', 'success');
-                            } else {
-                                button.classList.remove('btn-success');
-                                button.classList.add('btn-danger');
-                                button.innerHTML = 'Unlist';
-
-                                status.classList.remove('alert-danger');
-                                status.classList.add('alert-success');
-                                status.innerHTML = 'Listed';
-
-                                Swal.fire('Listed', '', 'success');
-                            }
+                        messageDiv.style.display = 'block';
+                        if (response.ok) {
+                            window.location.reload();
                         } else {
-                            Swal.fire('Failed to change the status', '', 'error');
+                            messageDiv.textContent = result.error || 'Adding category Failed. Please try again.';
+                            messageDiv.style.color = 'red';
                         }
-                    })
-                    .catch((error) => {
-                        console.error('Fetch error:', error);
-                        Swal.fire('An error occurred', '', 'error');
-                    });
+                    } catch (error) {
+                        console.error('Error:', error);
+                        messageDiv.textContent = 'An error occurred. Please try again.';
+                        messageDiv.style.display = 'block';
+                        messageDiv.style.color = 'red';
+                    }
+                }
+            });
+
+
+            function listCategory(categoryId) {
+                Swal.fire({
+                    title: ` Do you want to change category status? `,
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes'
+
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch(`/admin/listCategory?id=${categoryId}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                        })
+                            .then((response) => {
+                                // Check if the response is ok (HTTP status code in the range 200-299)
+                                if (!response.ok) {
+                                    throw new Error('Network response was not ok');
+                                }
+                                return response.json();
+                            })
+                            .then((data) => {
+                                // console.log('Server response:', data);
+
+                                if (data.success === true) {
+                                    const button = document.getElementById(`list-${categoryId}`);
+                                    const status = document.getElementById(`status-${categoryId}`);
+
+                                    if (button.classList.contains('btn-danger')) {
+                                        button.classList.remove('btn-danger');
+                                        button.classList.add('btn-success');
+                                        button.innerHTML = 'List';
+
+                                        status.classList.remove('alert-success');
+                                        status.classList.add('alert-danger');
+                                        status.innerHTML = 'Unlisted';
+
+                                        Swal.fire('Unlisted', '', 'success');
+                                    } else {
+                                        button.classList.remove('btn-success');
+                                        button.classList.add('btn-danger');
+                                        button.innerHTML = 'Unlist';
+
+                                        status.classList.remove('alert-danger');
+                                        status.classList.add('alert-success');
+                                        status.innerHTML = 'Listed';
+
+                                        Swal.fire('Listed', '', 'success');
+                                    }
+                                } else {
+                                    Swal.fire('Failed to change the status', '', 'error');
+                                }
+                            })
+                            .catch((error) => {
+                                console.error('Fetch error:', error);
+                                Swal.fire('An error occurred', '', 'error');
+                            });
+                    }
+                });
             }
-        });
-    }
 
-</script>
+            function validateCategoryForm() {
+                const name = document.getElementById('categoryName').value;
+                const description = document.getElementById('categoryDescription').value;
+
+                // Error message elements
+                const nameError = document.getElementById('nameError');
+                const descriptionError = document.getElementById('descriptionError');
+
+                // Reset previous error messages
+                nameError.textContent = '';
+                descriptionError.textContent = '';
+
+                // Regular expression to check for multiple spaces
+                const multipleSpacesPattern = /\s{2,}/;
+
+                // Validate category name 
+                if (name.trim() === '') {
+                    nameError.textContent = 'Please enter a category name. This field cannot be empty.';
+                    return false;
+                }
+                if (multipleSpacesPattern.test(name)) {
+                    nameError.textContent = 'The category name cannot contain consecutive spaces. Please correct this.';
+                    return false;
+                }
+                if (name.length < 3) {
+                    nameError.textContent = 'The category name must be at least 3 characters long. please provide a longer name.';
+                    return false;
+                }
+                if (name.length > 50) {
+                    nameError.textContent = 'The category name cannot exceed 50 characters. Please shorten the name.';
+                    return false;
+                }
+
+                // Validate description
+                if (description.trim() === '') {
+                    descriptionError.textContent = 'Please enter category description. This field cannot be empty.';
+                    return false;
+                }
+                if (multipleSpacesPattern.test(description)) {
+                    descriptionError.textContent = 'The description cannot contain consecutive spaces. Please correct this.';
+                    return false;
+                }
+                if (description.length < 10) {
+                    descriptionError.textContent = 'The description must be at least 10 characters long. Please provide more details.';
+                    return false;
+                }
+                if (description.length > 200) {
+                    descriptionError.textContent = 'The description cannot exceed 200 characters. Please shorten your description.';
+                    return false;
+                }
+                return true; // Form is valid
+            }
+        </script>
 
 
 
-<%- include('../adminLayouts/pageFooter.ejs') %>
-<%- include('../adminLayouts/footer.ejs') %>
+        <%- include('../adminLayouts/pageFooter.ejs') %>
+            <%- include('../adminLayouts/footer.ejs') %>

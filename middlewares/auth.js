@@ -1,12 +1,12 @@
 const User = require('../models/userModel');
 
 const is_login = async (req, res, next) => {
-    const user = req.session.userid;
-    const userData = await User.findOne({_id: id});
-    if(user && !userData.is_blocked){
+    const userId = req.session.userid;
+    const userData = await User.findOne({_id: userId});
+    if(userId && !userData.is_blocked){
         return next();
     }else{
-        req.redirect('/login');
+        res.redirect('/login');
     }
 }
 

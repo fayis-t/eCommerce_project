@@ -1,150 +1,562 @@
 <%- include('../userLayouts/header.ejs') %>
-<%- include('../userLayouts/pageHeader.ejs') %>
+  <%- include('../userLayouts/pageHeader.ejs') %>
 
-  <div class="container my-5" style="padding-top: 90px;">
-    <div class="row">
-      <!-- Left Navigation Bar -->
-      <div class="col-md-3">
-        <div class="card" style="border: none; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); background: #00897b; color: white;">
-          <div class="card-body text-center">
-            <img src="https://via.placeholder.com/80" alt="User Avatar" style="width: 80px; height: 80px; object-fit: cover; border-radius: 50%; margin-bottom: 15px; border: 2px solid white;">
-            <h5 id="profileNameDisplay" style="font-weight: bold;"><%= user %></h5>
-            <p id="profileEmailDisplay" style="color: #b2dfdb;">user@example.com</p>
+    <div class="container my-5" style="padding-top: 90px;">
+      <div class="row">
+        <!-- Left Navigation Bar -->
+        <div class="col-md-3">
+          <div class="card"
+            style="border: none; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); background: #00897b; color: white;">
+            <div class="card-body text-center">
+              <h4>Hello,</h4>
+              <h5 id="profileNameDisplay" style="font-weight: bold;">
+                <%= userData.name %>
+              </h5>
+            </div>
           </div>
-        </div>
-        <div class="nav flex-column nav-pills mt-3" id="profileTabs" role="tablist" aria-orientation="vertical">
-          <button class="nav-link active" id="user-profile-tab" data-bs-target="#userProfile" type="button" role="tab" style="border-radius: 5px; font-weight: bold; color: white; background-color: #00796b; margin-bottom: 10px;">User Profile</button>
-          <button class="nav-link" id="address-tab" data-bs-target="#address" type="button" role="tab" style="border-radius: 5px; font-weight: bold; color: white; background-color: #00796b; margin-bottom: 10px;">Manage Address</button>
-          <button class="nav-link" id="orders-tab" data-bs-target="#orders" type="button" role="tab" style="border-radius: 5px; font-weight: bold; color: white; background-color: #00796b; margin-bottom: 10px;">Orders</button>
-          <button class="nav-link" id="password-tab" data-bs-target="#password" type="button" role="tab" style="border-radius: 5px; font-weight: bold; color: white; background-color: #00796b; margin-bottom: 10px;">Change Password</button>
-          <button class="nav-link" id="logout-tab" type="button" style="border-radius: 5px; font-weight: bold; color: white; background-color: #d32f2f;">Logout</button>
-        </div>
-      </div>
-
-      <!-- Main Content -->
-      <div class="col-md-9">
-        <!-- User Profile Section -->
-        <div id="userProfile" class="content-section active" style="display: block;">
-          <div class="card" style="border: none; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);">
-            <div class="card-header" style="background: #00897b; color: white;">
-              <h5>User Profile</h5>
-            </div>
-            <div class="card-body">
-              <form id="editProfileForm">
-                <div class="mb-3">
-                  <label for="profileName" class="form-label">Name</label>
-                  <input type="text" class="form-control" id="profileName" value="John Doe" style="border-radius: 5px; border-color: #b2dfdb;">
-                </div>
-                <div class="mb-3">
-                  <label for="profileEmail" class="form-label">Email</label>
-                  <input type="email" class="form-control" id="profileEmail" value="user@example.com" style="border-radius: 5px; border-color: #b2dfdb;">
-                </div>
-                <div class="mb-3">
-                  <label for="profileMobile" class="form-label">Mobile</label>
-                  <input type="text" class="form-control" id="profileMobile" value="9876543210" style="border-radius: 5px; border-color: #b2dfdb;">
-                </div>
-                <button type="submit" class="btn btn-primary" style="background: #00796b; border: none;">Save Changes</button>
-              </form>
-            </div>
+          <div class="nav flex-column nav-pills mt-3" id="profileTabs" role="tablist" aria-orientation="vertical">
+            <button class="nav-link active" id="user-profile-tab" data-bs-target="#userProfile" type="button" role="tab"
+              style="border-radius: 5px; font-weight: bold; color: white; background-color: #00796b; margin-bottom: 10px;">User Profile</button>
+            <button class="nav-link" id="address-tab" data-bs-target="#address" type="button" role="tab"
+              style="border-radius: 5px; font-weight: bold; color: white; background-color: #00796b; margin-bottom: 10px;">Your Addresses</button>
+            <a href="/orderList" class="nav-link" id="orders-tab" data-bs-target="#orders" role="tab"
+              style="border-radius: 5px; font-weight: bold; color: white; background-color: #00796b; margin-bottom: 10px; padding-left: 90px;">Orders</a>
+            <button class="nav-link" id="password-tab" data-bs-target="#password" type="button" role="tab"
+              style="border-radius: 5px; font-weight: bold; color: white; background-color: #00796b; margin-bottom: 10px;">Change Password</button>
+            <button class="nav-link" id="logout-tab" type="button"
+              style="border-radius: 5px; font-weight: bold; color: white; background-color: #d32f2f;">Logout</button>
           </div>
         </div>
 
-        <!-- Manage Address Section -->
-        <div id="address" class="content-section" style="display: none;">
-          <div class="card" style="border: none; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);">
-            <div class="card-header" style="background: #00897b; color: white;">
-              <h5>Manage Address</h5>
-            </div>
-            <div class="card-body">
-              <div id="addressList">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                  <p style="margin: 0;">123, Main Street, City, State, ZIP</p>
-                  <div>
-                    <button class="btn btn-outline-primary btn-sm" style="border-color: #80cbc4; color: #00796b;">Edit</button>
-                    <button class="btn btn-danger btn-sm" style="background-color: #d32f2f; border: none;">Delete</button>
-                  </div>
-                </div>
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                  <p style="margin: 0;">456, Second Street, City, State, ZIP</p>
-                  <div>
-                    <button class="btn btn-outline-primary btn-sm" style="border-color: #80cbc4; color: #00796b;">Edit</button>
-                    <button class="btn btn-danger btn-sm" style="background-color: #d32f2f; border: none;">Delete</button>
-                  </div>
-                </div>
+        <!-- Main Content -->
+        <div class="col-md-9">
+          <!-- User Profile Section -->
+          <div id="userProfile" class="content-section active" style="display: block;">
+            <div class="card" style="border: none; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);">
+              <div class="card-header" style="background: #00897b; color: white;">
+                <h5>User Profile</h5>
               </div>
-              <button class="btn btn-primary btn-sm" id="addAddressBtn" style="background: #00796b; border: none;">Add New Address</button>
+              <div class="card-body">
+                <form id="editProfileForm">
+                  <div class="mb-3">
+                    <label for="profileName" class="form-label">Name</label>
+                    <input type="text" class="form-control" id="profileName" value="<%= userData.name %>"
+                      style="border-radius: 5px; border-color: #b2dfdb;">
+                  </div>
+                  <div class="mb-3">
+                    <label for="profileEmail" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="profileEmail" value="<%= userData.email %>"
+                      style="border-radius: 5px; border-color: #b2dfdb;">
+                  </div>
+                  <button type="submit" class="btn btn-primary" onclick="editUserProfile(event)"
+                    style="background: #00796b; border: none;">Save Changes</button>
+                </form>
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- Orders Section -->
-        <div id="orders" class="content-section" style="display: none;">
-          <div class="card" style="border: none; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);">
-            <div class="card-header" style="background: #00897b; color: white;">
-              <h5>Orders</h5>
-            </div>
-            <div class="card-body">
-              <ul class="list-group">
-                <li class="list-group-item d-flex justify-content-between align-items-center" style="border-color: #80cbc4;">
-                  Order #12345 - $99.99
-                  <button class="btn btn-danger btn-sm" style="background-color: #d32f2f; border: none;">Cancel Order</button>
-                </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center" style="border-color: #80cbc4;">
-                  Order #67890 - $49.99
-                  <button class="btn btn-danger btn-sm" style="background-color: #d32f2f; border: none;">Cancel Order</button>
-                </li>
-              </ul>
+          <!-- Manage Address Section -->
+          <div id="address" class="content-section" style="display: none;">
+            <div class="card" style="border: none; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);">
+              <div class="card-header" style="background: #00897b; color: white;">
+                <h5>Your Addresses</h5> 
+              </div>
+              <div class="card-body">
+                <div id="addressList">
+                  <% if (addresses.length> 0) { %>
+                    <% addresses.map((address)=> { %>
+                      <div class="d-flex justify-content-between align-items-center mb-3" data-id="<%= address._id %>">
+                        <p style="margin: 0;">
+                          <span class="name">
+                            <%= address.name %>,
+                          </span>
+                          <span class="address">
+                            <%= address.address %>,
+                          </span>
+                          <span class="city">
+                            <%= address.city %>,
+                          </span>
+                          <span class="state">
+                            <%= address.state %>,
+                          </span>
+                          <span class="country">
+                            <%= address.country %>,
+                          </span>
+                          <span class="pincode">
+                            <%= address.pincode %>,
+                          </span>
+                          Phone number: <span class="mobile">
+                            <%= address.mobile %>,
+                          </span>
+                        </p>
+                        <div>
+                          <button class="btn btn-outline-primary btn-sm edit-btn"
+                            style="border-color: #80cbc4; color: #00796b;" data-id="<%= address._id %>"
+                            data-name="<%= address.name %>" data-address="<%= address.address %>"
+                            data-country="<%= address.country %>" data-city="<%= address.city %>"
+                            data-state="<%= address.state %>" data-pincode="<%= address.pincode %>"
+                            data-mobile="<%= address.mobile %>">
+                            Edit
+                          </button>
+                          <button class="btn btn-danger btn-sm" onclick="deleteAddress('<%= address._id %>')"
+                            style="background-color: #d32f2f; border: none;">Delete</button>
+                        </div>
+                      </div>
+                      <% }) %>
+                        <% } else { %>
+                          <p>No addresses available</p>
+                          <% } %>
+                </div>
+
+                <button class="btn btn-primary btn-sm" id="addAddressBtn" style="background: #00796b; border: none;">Add
+                  New Address</button>
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- Change Password Section -->
-        <div id="password" class="content-section" style="display: none;">
-          <div class="card" style="border: none; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);">
-            <div class="card-header" style="background: #00897b; color: white;">
-              <h5>Change Password</h5>
-            </div>
-            <div class="card-body">
-              <form>
-                <div class="mb-3">
-                  <label for="currentPassword" class="form-label">Current Password</label>
-                  <input type="password" class="form-control" id="currentPassword" style="border-radius: 5px; border-color: #b2dfdb;">
-                </div>
-                <div class="mb-3">
-                  <label for="newPassword" class="form-label">New Password</label>
-                  <input type="password" class="form-control" id="newPassword" style="border-radius: 5px; border-color: #b2dfdb;">
-                </div>
-                <button type="submit" class="btn btn-primary" style="background: #00796b; border: none;">Update Password</button>
-              </form>
+          <!-- Change Password Section -->
+          <div id="password" class="content-section" style="display: none;">
+            <div class="card" style="border: none; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);">
+              <div class="card-header" style="background: #00897b; color: white;">
+                <h5>Change Password</h5>
+              </div>
+              <div class="card-body">
+                <form id="changePasswordForm">
+                  <div class="mb-3">
+                    <div id="message" style="display: none; margin-bottom: 15px; font-size: 0.9rem;"></div>
+                    <label for="currentPassword" class="form-label">Current password</label>
+                    <input type="password" class="form-control" id="currentPassword"
+                      style="border-radius: 5px; border-color: #b2dfdb;">
+                  </div>
+                  <div class="mb-3">
+                    <label for="newPassword" class="form-label">New password</label>
+                    <input type="password" class="form-control" id="newPassword"
+                      style="border-radius: 5px; border-color: #b2dfdb;">
+                  </div>
+                  <div class="mb-3">
+                    <label for="newPassword" class="form-label">Re-enter new password</label>
+                    <input type="password" class="form-control" id="conformPassword"
+                      style="border-radius: 5px; border-color: #b2dfdb;">
+                  </div>
+                  <button type="button" onclick="changePassword(event)" class="btn btn-primary"
+                    style="background: #00796b; border: none;">Save changes</button>
+                </form>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const tabs = document.querySelectorAll('.nav-link');
-      const sections = document.querySelectorAll('.content-section');
+    <!-- Add Address Modal -->
+    <div class="modal fade" id="addAddressModal" tabindex="-1" aria-labelledby="addAddressLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="addAddressLabel">Add New Address</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="addAddressForm" novalidate>
+              <div class="mb-3">
+                <label for="name" class="form-label">Full name (firs and last name)</label>
+                <input type="text" class="form-control" id="name" required />
+                <small id="nameError" class="text-danger error-message"></small>
+              </div>
+              <div class="mb-3">
+                <label for="mobile" class="form-label">Mobile number</label>
+                <input type="number" class="form-control" id="mobile" required />
+                <small id="mobileError" class="text-danger error-message"></small>
+              </div>
+              <div class="mb-3">
+                <label for="pincode" class="form-label">Pincode</label>
+                <input type="number" class="form-control" id="pincode" required />
+                <small id="pincodeError" class="text-danger error-message"></small>
+              </div>
+              <div class="mb-3">
+                <label for="address" class="form-label">Flat, House, Building, Company, Apartment</label>
+                <input type="text" class="form-control" id="addresses" rows="2" required />
+                <small id="addressError" class="text-danger error-message"></small>
+              </div>
+              <div class="mb-3">
+                <label for="city" class="form-label">Town/City</label>
+                <input type="text" class="form-control" id="city" required />
+                <small id="cityError" class="text-danger error-message"></small>
+              </div>
+              <div class="mb-3">
+                <label for="state" class="form-label">State</label>
+                <input type="text" class="form-control" id="state" required />
+                <small id="stateError" class="text-danger error-message"></small>
+              </div>
+              <div class="mb-3">
+                <label for="country" class="form-label">Country</label>
+                <input type="text" class="form-control" id="country" required />
+                <small id="countryError" class="text-danger error-message"></small>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary" id="saveNewAddressBtn">Save Address</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
-      tabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-          const targetId = tab.getAttribute('data-bs-target');
-          tabs.forEach(t => t.classList.remove('active'));
-          sections.forEach(s => s.style.display = 'none');
-          tab.classList.add('active');
-          document.querySelector(targetId).style.display = 'block';
+    <!-- Edit Address Modal -->
+    <div class="modal fade" id="editAddressModal" tabindex="-1" aria-labelledby="editAddressLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editAddressLabel">Edit Address</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="editAddressForm" novalidate>
+              <input type="hidden" id="editAddressId"/>
+              <div class="mb-3">
+                <label for="editName" class="form-label">Full name (firs and last name)</label>
+                <input type="text" class="form-control" id="editName" required />
+              </div>
+              <div class="mb-3">
+                <label for="editMobile" class="form-label">Mobile number</label>
+                <input type="number" class="form-control" id="editMobile" required />
+              </div>
+              <div class="mb-3">
+                <label for="editPincode" class="form-label">Pincode</label>
+                <input type="number" class="form-control" id="editPincode" required />
+              </div>
+              <div class="mb-3">
+                <label for="editAddress" class="form-label">Flat, House, Building, Company, Apartment</label>
+                <input class="form-control" id="editAddress" rows="2" required />
+              </div>
+              <div class="mb-3">
+                <label for="editCity" class="form-label">Town/City</label>
+                <input type="text" class="form-control" id="editCity" required />
+              </div>
+              <div class="mb-3">
+                <label for="editState" class="form-label">State</label>
+                <input type="text" class="form-control" id="editState" required />
+              </div>
+              <div class="mb-3">
+                <label for="editCountry" class="form-label">Country</label>
+                <input type="text" class="form-control" id="editCountry" required />
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary" id="updateAddressBtn">Update Address</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const tabs = document.querySelectorAll('.nav-link');
+        const sections = document.querySelectorAll('.content-section');
+
+        tabs.forEach(tab => {
+          tab.addEventListener('click', () => {
+            const targetId = tab.getAttribute('data-bs-target');
+            tabs.forEach(t => t.classList.remove('active'));
+            sections.forEach(s => s.style.display = 'none');
+            tab.classList.add('active');
+            document.querySelector(targetId).style.display = 'block';
+          });
+        });
+
+        document.getElementById('logout-tab').addEventListener('click', () => {
+          Swal.fire({
+            title: 'Do you want to logout ?',
+            confirmButtonText: 'Yes',
+            showCancelButton: true
+          }).then(response => {
+            if(response.isConfirmed){
+              window.location.href = '/logout';
+            }else{
+              window.location.href = '/profile';
+            }
+          })
         });
       });
 
-      document.getElementById('logout-tab').addEventListener('click', () => {
-        alert('Logged out successfully.');
-        window.location.href = '/login';
-      });
-    });
-  </script>
 
-<%- include('../userLayouts/pageFooter.ejs') %>
-<%- include('../userLayouts/footer.ejs') %>
+      function editUserProfile(event) {
+        event.preventDefault();
+        Swal.fire({
+          title: `Do you want to edit profile ?`,
+          showCancelButton: true,
+          confirmButtonText: 'Yes'
+        }).then(response => {
+          if (response.isConfirmed) {
+            const name = document.getElementById('profileName').value; 
+
+            fetch('/editProfile', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ name})
+            }).then(response => response.json())
+              .then((data) => {
+                if (data.success) {
+                  Swal.fire('Changes saved', '', 'success');
+                } else {
+                  Swal.fire('Something Wrong!', '', 'error');
+                }
+              })
+          }
+        })
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        // Open Add Address Modal
+        document.getElementById('addAddressBtn').addEventListener('click', () => {
+          const addAddressModal = new bootstrap.Modal(document.getElementById('addAddressModal'));
+          addAddressModal.show();
+        });
+
+        // Save New Address
+        document.getElementById('saveNewAddressBtn').addEventListener('click', () => {
+          const name = document.getElementById('name').value
+          const address = document.getElementById('addresses').value
+          console.log(address);
+          const country = document.getElementById('country').value
+          const city = document.getElementById('city').value
+          const state = document.getElementById('state').value
+          const pincode = document.getElementById('pincode').value
+          const mobile = document.getElementById('mobile').value
+
+          let isValid = true;
+
+          // Clear previous error messages
+          document.querySelectorAll('.error-message').forEach((el) => (el.textContent = ''));
+
+          // Validate fields
+          if (!name) {
+            document.getElementById('nameError').textContent = 'Name is required.';
+            isValid = false;
+          }
+          if (!address) {
+            document.getElementById('addressError').textContent = 'Address is required.';
+            isValid = false;
+          }
+          if (!country) {
+            document.getElementById('countryError').textContent = 'Country is required.';
+            isValid = false;
+          }
+          if (!city) {
+            document.getElementById('cityError').textContent = 'City is required.';
+            isValid = false;
+          }
+          if (!state) {
+            document.getElementById('stateError').textContent = 'State is required.';
+            isValid = false;
+          }
+          if (!pincode || isNaN(pincode) || pincode.length !== 6) {
+            document.getElementById('pincodeError').textContent = 'Valid 6-digit pincode is required.';
+            isValid = false;
+          }
+          if (!mobile || isNaN(mobile) || mobile.length !== 10) {
+            document.getElementById('mobileError').textContent = 'Valid 10-digit mobile number is required.';
+            isValid = false;
+          }
+
+          if (isValid) {
+            fetch('/addAddress', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ name, address, country, city, state, pincode, mobile }),
+            })
+              .then((response) => response.json())
+              .then((data) => {
+                if (data.success) {
+                  Swal.fire('New Address Added', '', 'success')
+                  .then(()=> location.reload());
+
+                  const modalInstance = bootstrap.Modal.getInstance(document.getElementById('addAddressModal'));
+                  if (modalInstance) modalInstance.hide();
+                  document.getElementById('addAddressForm').reset();
+
+                } else {
+                  Swal.fire('Something went wrong!', data.message || '', 'error');
+                }
+              })
+              .catch((error) => {
+                console.error('Error adding address:', error);
+                Swal.fire('Something went wrong!', '', 'error');
+              });
+          }
+        });
+
+
+        // Open Edit Address Modal
+        document.querySelectorAll('.edit-btn').forEach((button) => {
+          button.addEventListener('click', (event) => {
+            // Extract data from the button's attributes
+            const addressId = button.dataset.id;
+            const name = button.dataset.name;
+            const address = button.dataset.address;
+            const country = button.dataset.country;
+            const city = button.dataset.city;
+            const state = button.dataset.state;
+            const pincode = button.dataset.pincode;
+            const mobile = button.dataset.mobile;
+
+            // Populate the edit form fields
+            document.getElementById('editAddressId').value = addressId;
+            document.getElementById('editName').value = name;
+            document.getElementById('editAddress').value = address;
+            document.getElementById('editCountry').value = country;
+            document.getElementById('editCity').value = city;
+            document.getElementById('editState').value = state;
+            document.getElementById('editPincode').value = pincode;
+            document.getElementById('editMobile').value = mobile;
+
+            // Show the edit modal
+            const editAddressModal = new bootstrap.Modal(document.getElementById('editAddressModal'));
+            editAddressModal.show();
+          });
+        });
+
+
+        // Update Address
+        document.getElementById('updateAddressBtn').addEventListener('click', () => {
+          const addressId = document.getElementById('editAddressId').value;
+          const name = document.getElementById('editName').value.trim();
+          const address = document.getElementById('editAddress').value.trim();
+          const country = document.getElementById('editCountry').value.trim();
+          const city = document.getElementById('editCity').value.trim();
+          const state = document.getElementById('editState').value.trim();
+          const pincode = document.getElementById('editPincode').value.trim();
+          const mobile = document.getElementById('editMobile').value.trim();
+
+          // Validate all fields
+          if (name && address && country && city && state && pincode && mobile) {
+            // Simulate API call for updating address
+            fetch(`/updateAddress/${addressId}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ name, address, country, city, state, pincode, mobile }),
+            })
+              .then((response) => response.json())
+              .then((data) => {
+                if (data.success) {
+                  Swal.fire('Address Updated', '', 'success')
+                  .then(() => location.reload());
+
+                  // Hide the modal and reset the form
+                  const modalInstance = bootstrap.Modal.getInstance(document.getElementById('editAddressModal'));
+                  if (modalInstance) modalInstance.hide();
+                  document.getElementById('editAddressForm').reset();
+
+                  // Example: Update the DOM element showing the updated address
+                  const parent = document.querySelector(`div[data-id="${addressId}"]`);
+                  if (parent) {
+                    parent.querySelector('.name').innerText = name;
+                    parent.querySelector('.address').innerText = address;
+                    parent.querySelector('.city').innerText = city;
+                    parent.querySelector('.state').innerText = state;
+                    parent.querySelector('.pincode').innerText = pincode;
+                    parent.querySelector('.country').innerText = country;
+                    parent.querySelector('.mobile').innerText = mobile;
+                  }
+                } else {
+                  Swal.fire('Update Failed', data.message || 'An error occurred.', 'error');
+                }
+              })
+              .catch((error) => {
+                console.error('Error updating address:', error);
+                Swal.fire('Update Failed', 'Unable to update address.', 'error');
+              });
+          }else{
+            alert('Please fill out all fields.');
+          }
+        });
+      });
+
+
+      function changePassword(event) {
+        event.preventDefault();
+        const messageDiv = document.getElementById('message');
+        messageDiv.style.display = 'none';
+
+        let currentPassword = document.getElementById('currentPassword').value;
+        let newPassword = document.getElementById('newPassword').value;
+        let conformPassword = document.getElementById('conformPassword').value;
+
+        // console.log(currentPassword, newPassword);
+
+        Swal.fire({
+          title: `Do you really want to change password ?`,
+          showCancelButton: true,
+          confirmButtonText: 'Yes'
+        }).then((response) => {
+          if (response.isConfirmed) {
+            fetch('/changePassword', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ currentPassword, newPassword, conformPassword})
+            })
+              .then(response => response.json())
+              .then((data) => {
+                if (data.success) {
+                  Swal.fire('Password changed', '', 'success');
+                  document.getElementById('changePasswordForm').reset();
+
+                } else if(data.message){
+                  messageDiv.style.display = 'block';
+                  messageDiv.style.color = 'red';
+                  messageDiv.textContent = data.message;
+                  // Swal.fire(data.message, '', 'warning');
+                }else{
+                  Swal.fire('Failed to change password', '', 'error');
+                }
+              })
+              .catch((error) => {
+                console.error('Error:', error);
+                Swal.fire('An error occured', '', 'error');
+              });
+          }
+        });
+      }
+
+      function deleteAddress(addressId) {
+        Swal.fire({
+          title: `Do you want to delete this address?`,
+          showCancelButton: true,
+          confirmButtonText: 'Yes'
+        }).then((response) => {
+          if (response.isConfirmed) {
+            fetch(`/deleteAddress/${addressId}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' }
+            })
+              .then((response) => response.json())
+              .then((data) => {
+                if (data.success) {
+                  Swal.fire('Address deleted', '', 'success')
+                  .then(() => {
+                    location.reload();
+                  })
+                } else {
+                  Swal.fire('Failed to delete address', '', 'error');
+                }
+              })
+              .catch((error) => {
+                console.error('Error:', error);
+                Swal.fire('An error occurred', '', 'error');
+              });
+          }
+        });
+      }
+
+    </script>
+
+
+
+    <%- include('../userLayouts/pageFooter.ejs') %>
+      <%- include('../userLayouts/footer.ejs') %>

@@ -47,7 +47,7 @@
                 <div class="col-lg-8 mx-auto">
                     <div class="card mb-4">
                         <div class="card-body">
-                            <form id="categoryForm" enctype="multipart/form-data">
+                            <form id="categoryForm" enctype="multipart/form-data" novalidate>
                                 <div class="mb-4">
                                     <input type="hidden" value="<%= category.id %>" id="categoryId" />
                                     <label for="category_name" class="form-label">Category Name</label>
@@ -97,6 +97,9 @@
             document.getElementById('categoryForm').addEventListener('submit', async function (event) {
                 event.preventDefault();
 
+                const validated = validateCategoryForm();
+
+                if(validated){
                 const formData = new FormData();
                 formData.name = document.getElementById('category_name').value;
                 formData.description= document.getElementById('category_description').value;
@@ -130,7 +133,63 @@
                 } catch (error) {
                     console.error('Error:', error);
                 }
+                }
             });
+
+            function validateCategoryForm(){
+                const name = document.getElementById('category_name').value;
+                const description = document.getElementById('category_description').value;
+                
+                // Error message elements
+                const nameError = document.getElementById('nameError');
+                const descriptionError = document.getElementById('descriptionError');
+
+                // Reset previous error messages
+                nameError.textContent = '';
+                descriptionError.textContent = '';
+
+                // Regular expression to check for multiple spaces
+                const multipleSpacePattern = /\s{2,}/;
+
+                // Validate category name 
+                if(name.trim() === ''){
+                    nameError.textContent = 'Please enter a catergory name. This field cannot be empty.';
+                    return false;
+                }
+                if(multipleSpacePattern.test(name)){
+                    nameError.textContent = 'The category name cannot contain consecutive spaces. Please correct this';
+                    return false;
+                }
+                if(name.length < 3){
+                    nameError.textContent = 'The category name must be at least 3 characters long. Please provide a longer name';
+                    return false;
+                }
+                if(name.length > 50){
+                    nameError.textContent = 'The category name cannot exceed 50 characters. Please shorten the name.';
+                    return false;
+                }
+
+                // Validate description
+                if(description.trim() === ''){
+                    descriptionError.textContent = 'Please enter category description. This field cannot be empty.';
+                    return false;
+                }
+                if(multipleSpacePattern.test(description)){
+                    descriptionError.textContent = 'The description cannot contain cosecutive spaces. Please correct this.';
+                    return false;
+                }
+                if(description.length < 10){
+                    descriptionError.textContent = 'The description must be at least 10 characters long. Please provide more details.';
+                    return false;
+                }
+                if(description.length > 200){
+                    descriptionError.textContent = 'The description cannot exceed 200 characters. Please shorten your description.';
+                    return false;
+                }
+
+                return true; // Form is valid
+
+            }
         </script>
 
         <%- include('../adminLayouts/pageFooter.ejs') %>

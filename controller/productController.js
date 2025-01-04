@@ -101,15 +101,16 @@ const loadEditProduct = async (req, res) => {
 
 const editProduct = async (req, res) => {
     try {
-        const {formData,files } = req.body;
+        const {name, description, price, stock, category, deletedImages} = req.body;
         const productId = req.params.id;
-        console.log(req.body);
-                                    
+        
+        console.log(category);
+
         let imagePaths = [];
         if (req.files && req.files.length > 0) {
             imagePaths = req.files.map((file) => file.filename);
         }
-        console.log(files);
+        
 
         const product = await productModel.findById(productId);
 
@@ -118,33 +119,36 @@ const editProduct = async (req, res) => {
         }
 
         // Update fields
-        product.name = formData.name;
-        product.description = formData.description;
-        product.price = formData.price;
-        product.stock = formData.stock;
-        product.category = formData.category;
+        product.name = name;
+        product.description = description;
+        product.price = price;
+        product.stock = stock;
+        product.category = category;
 
-        if(formData.deletedImages.length > 0){
-            for(const image of formData.deletedImages){
+       
+        // Handle deleted images
+        if (deletedImages && deletedImages.length > 0) {
+            const imagesToDelete = deletedImages.split(',');
+           
+            imagesToDelete.forEach((image) => {
                 const imagePath = path.join(__dirname, '..', 'public', 'uploads', image);
                 fs.unlink(imagePath, (error) => {
-                    if(error){
+                    if (error) {
                         console.error(`Error deleting image ${image}:`, error);
-                    }else{
-                        console.log(`Deleted image: ${imagePath}`);
                     }
                 });
-            }
-            product.images = product.images.filter(image => !formData.deletedImages.includes(image));
-            console.log(product.images);
+            });
+
+            // Remove deleted images from the product's image array
+            product.images = product.images.filter((image) => !imagesToDelete.includes(image));
         }
 
-        // If new images are uploaded, replace the old ones
-        if (formData.imageFiles && formData.imageFiles.length > 0) {
-            const newImagePaths = formData.imageFiles.map((file) => file. filename);
-            product.images = [...product.images, ...newImagePaths];
-        }        
-   
+        // Add newly uploaded images to the product's image array
+        if (imagePaths.length > 0) {
+            product.images = [...product.images, ...imagePaths];
+        }
+
+        
         const savedProduct = await product.save();
 
         if (savedProduct) {

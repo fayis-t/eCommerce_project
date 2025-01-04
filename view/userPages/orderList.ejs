@@ -1,0 +1,77 @@
+<%- include('../userLayouts/header.ejs') %>
+<%- include('../userLayouts/pageHeader.ejs') %>
+
+
+<style>
+    .table-custom th, .table-custom td {
+        vertical-align: middle;
+    }
+    .table-custom .product-img {
+        max-width: 50px;
+    }
+    .table-custom .cancel-btn {
+        color: red;
+        cursor: pointer;
+    }
+    .custom-height {
+        min-height: 90vh; /* Ensure it takes up the full viewport height */
+    }
+
+    body {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+    .container {
+        flex-grow: 1; /* Allow the container to take up remaining space */
+    }
+</style>    
+
+<div class="container my-5 custom-height" style="padding-top: 100px;">
+    <div class="card">
+        <div class="card-header">
+            <h4 class="card-title">Order List</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-custom">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th class="text-center">No</th>
+                            <th class="text-center">Order Id</th>
+                            <th class="text-center">Date</th>
+                            <th class="text-center">Status</th>
+                            <th class="text-center">Total</th>
+                            <th class="text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (orders && orders.length > 0) { %>
+                            <% orders.forEach((order, index) => { %>
+                                <tr>
+                                    <td class="text-center"><%= index + 1 %></td>
+                                    <td class="text-center"><%= order.orderId %></td>
+                                    <% const options = { weekday: 'short', day: 'numeric', month: 'short' }; 
+                                    const formattedDate = new Date(order.createdAt).toLocaleDateString('en-US', options); %>
+                                    <td class="text-center"><%= formattedDate %></td>
+                                    <td class="text-center"><%= order.order_status %></td>
+                                    <td class="text-center">₹ <%= order.order_total %>.0</td>
+                                    <td class="text-center">
+                                        <a href="/order-details/<%= order._id %>">View</a>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="6" class="text-center">Order Not Found</td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <%- include('../userLayouts/pageFooter.ejs') %>
+	<%- include('../userLayouts/footer.ejs') %>

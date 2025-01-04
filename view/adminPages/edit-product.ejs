@@ -58,7 +58,7 @@
                 <div class="col-lg-8 mx-auto">
                     <div class="card mb-4">
                         <div class="card-body">
-                            <form id="productForm" enctype="multipart/form-data">
+                            <form id="productForm" enctype="multipart/form-data" novalidate>
                                 <div class="mb-4">
                                     <input type="hidden" value="<%= product.id %>" id="productId" />
                                     <label for="product_name" class="form-label">Product Name</label>
@@ -92,8 +92,7 @@
                                         <% if (categories && categories.length> 0) { %>
                                             <% categories.forEach((category)=> { %>
                                                 <option value="<%= category._id %>" <%=product.category===category._id
-                                                    ? 'selected' : '' %>
-                                                    >
+                                                    ? 'selected' : '' %>>
                                                     <%= category.name %>
                                                 </option>
                                                 <% }) %>
@@ -153,6 +152,7 @@
             let imageFiles = [];
             let dataTransfer = new DataTransfer();
             let deletedImages = [];
+            let currentImagesLength = 4;
 
             // Handle Image Upload
             function handleImageUploads(event) {
@@ -240,6 +240,7 @@
                             previewContainer.removeChild(imageToDelete);
                             deletedImages.push(image);
                             document.getElementById('product_images').value = '';
+                            currentImagesLength--;
                             Swal.fire('Deleted', 'Your image has been deleted.', 'success');
                         } else {
                             console.error("Image not found for deletion.");
@@ -257,36 +258,39 @@
             document.getElementById('productForm').addEventListener('submit', async function (event) {
                 event.preventDefault();
 
-                const formData = new FormData();
-                formData.name = document.getElementById('product_name').value;
-                formData.description = document.getElementById('product_description').value
-                formData.price = document.getElementById('product_price').value
-                formData.stock = document.getElementById('product_stock').value
-                formData.category = document.getElementById('product_category').value
-                formData.deletedImages = deletedImages
+                const validated = validateProductForm();
 
-                console.log("form data is ", formData);
+                if(validated){
+                const formData = new FormData();
+                formData.append('name', document.getElementById('product_name').value.trim());
+                formData.append('description', document.getElementById('product_description').value.trim());
+                formData.append('price', document.getElementById('product_price').value.trim());
+                formData.append('stock', document.getElementById('product_stock').value.trim());
+                formData.append('category', document.getElementById('product_category').value.trim());
+                formData.append('deletedImages', deletedImages);
 
                 const files = document.getElementById('product_images').files;
-                for (let i = 0; i < files.length; i++) {
+                    console.log(files.length, 'jkfasdhflkj', currentImagesLength, 'sjdhfklasjdhfsad', deletedImages.length);
+                    
+                    if((4 - currentImagesLength) + files.length == 4 || deletedImages.length == 4){
+                        for (let i = 0; i < files.length; i++) {
                     formData.append('productImages', files[i]);
                 }
+                }else{
+                        imageError.textContent = 'Please upload exactly 4 images.';
+                    return false;
+                    }
 
                 const productId = document.getElementById('productId').value;
 
-                console.log("product is is s===>", productId);
-                console.log("final for is ===>", formData);
-
                 try {
+                    console.log("FormData before submission:", [...formData.entries()]);
                     const response = await fetch(`/admin/editProduct/${productId}`, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ formData, files})
+                        body: formData
                     });
 
-
                     console.log("responce is ", response);
-
 
                     if (response.ok) {
                         Swal.fire('Product Updated Successfully', '', 'success').then(() => {
@@ -300,7 +304,111 @@
                 } catch (error) {
                     console.error('Error:', error);
                 }
+                    
+                }
             });
+
+            function validateProductForm() {
+                const name = document.getElementById('product_name').value;
+                const description =  document.getElementById('product_description').value;
+                const price =  document.getElementById('product_price').value;
+                const stock =  document.getElementById('product_stock').value;
+                const category =  document.getElementById('product_category').value;
+
+                // Error message elements
+                const nameError = document.getElementById('nameError');
+                const descriptionError = document.getElementById('descriptionError');
+                const priceError = document.getElementById('priceError');
+                const stockError = document.getElementById('stockError');
+                const imageError = document.getElementById('imageError');
+
+                // Reset previous error messages
+                nameError.textContent = '';
+                descriptionError.textContent = '';
+                priceError.textContent = '';
+                stockError.textContent = '';
+                imageError.textContent = '';
+
+                // Regular expression to check for multiple spaces
+                const multipleSpacesPattern = /\s{2,}/;
+
+                // Validate product name
+                if (name.trim() === '') {
+                    nameError.textContent = 'Please enter a product name. This field cannot be empty.';
+                    return false;
+                }
+                if (multipleSpacesPattern.test(name)) {
+                    nameError.textContent = 'The product name cannot contain consecutive spaces. Please correct this.';
+                    return false;
+                }
+                if (name.length < 3) {
+                    nameError.textContent = 'The product name must be at least 3 characters long. Please provide a longer name.';
+                    return false;
+                }
+                if (name.length > 50) {
+                    nameError.textContent = 'The product name cannot exceed 50 characters. Please shorten the name.';
+                    return false;
+                }
+
+                // Validate description
+                if(description.trim() === ''){
+                    descriptionError.textContent = 'Please enter product description. This field cannot be empty.';
+                    return false;
+                }
+                if (multipleSpacesPattern.test(description)) {
+                    descriptionError.textContent = 'The description cannot contain consecutive spaces. Please correct this.';
+                    return false;
+                }
+                if (description.length < 10) {
+                    descriptionError.textContent = 'The description must be at least 10 characters long. Please provide more detail.';
+                    return false;
+                }
+                if (description.length > 500) {
+                    descriptionError.textContent = 'The description cannot exceed 500 characters. Please shorten your description.';
+                    return false;
+                }
+
+                // Validate price
+                if (price === '') {
+                    priceError.textContent = 'Please enter a price. This field cannot be empty.';
+                    return false;
+                }
+                if (Number(price) <= 0) {
+                    priceError.textContent = 'The price must be a positive number.';
+                    return false;
+                }
+
+                // Validate stock
+                if (stock === '') {
+                    stockError.textContent = 'Please enter stock. This field cannot be empty.';
+                    return false;
+                }
+                if (Number(stock) < 0) {
+                    stockError.textContent = 'Stock cannot be negative.';
+                    return false;
+                }
+
+                // Validate images
+                const images = document.getElementById('product_images').files;
+                console.log(images);
+                
+                if (images.length !== 4) { // Check if exactly 4 images are uploaded
+                    imageError.textContent = 'Please upload exactly 4 images.';
+                    return false;
+                }
+
+                // Check file types
+                const allowedTypes = ['image/jpeg', 'image/png'];
+                for (let i = 0; i < images.length; i++) {
+                    const file = images[i]; // Access the file directly
+                    if (!allowedTypes.includes(file.type)) {
+                        imageError.textContent = 'Only JPG and PNG images are allowed.';
+                        return false; // Prevent further checks on the next files if one is invalid
+                    }
+                }
+
+                return true; // Form is valid
+            }
         </script>
 
         <%- include('../adminLayouts/pageFooter.ejs') %>

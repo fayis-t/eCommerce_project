@@ -38,7 +38,9 @@ app.set("view engine", "ejs");
 app.use('/', userRoute);
 app.use('/admin', adminRoute);
 
-app.listen(3005, ()=>{
-    console.log(`server running on http://localhost:3005`);
+const PORT = process.env.PORT || 3005;
+app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
 });
+
 

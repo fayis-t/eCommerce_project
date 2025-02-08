@@ -3,8 +3,12 @@ const Product = require('../models/productModel');
 const addressModel = require('../models/addressModel');
           
 const addToCart = async (req, res) => {
-    try {                           
+    try {                          
         const userId = req.session.userid;
+
+        if(!userId){
+            return res.status(404).json({message: 'You are not loged in!'});
+        }
                                          
         const { productId, quantity } = req.body;
       
@@ -38,16 +42,13 @@ const addToCart = async (req, res) => {
         const itemIndex = cart.items.findIndex(item => item.productId.toString() === productId);
 
         if (itemIndex > -1) {
-            // Product already exists, update quantity
             cart.items[itemIndex].quantity += quantity;
 
-            // Ensure the quantity doesn't exceed the limit
             if (cart.items[itemIndex].quantity > 5) {
-                cart.items[itemIndex].quantity -= quantity; // Roll back the addition
+                cart.items[itemIndex].quantity -= quantity;
                 return res.status(400).json({ message:  "Product already in the cart" });
             }
         } else {
-            // Add new product if quantity is valid
             if (quantity > 5) {
                 return res.status(400).json({ message: "You can buy only up to 5 unit(s) of this product." });
             }
@@ -72,6 +73,43 @@ const addToCart = async (req, res) => {
         res.status(500).json({ message: 'An error occurred', error: error.message });
     }
 };
+
+
+
+
+
+const updateCart = async (req, res) => {
+    const { productId, newQuantity } = req.body;
+    const userId = req.session.userid
+
+    try {
+        let cart = await Cart.findOne({ userId });
+
+        if (!cart) {
+            cart = new Cart({ userId, items: [] });
+        }
+
+        if (newQuantity <= 0) {
+            return res.status(400).json({ success: false, message: 'Quantity must be greater than zero' });
+        }
+
+        const itemIndex = cart.items.findIndex(item => item.productId.toString() === productId);
+
+        if (itemIndex >= 0) {
+            cart.items[itemIndex].quantity = newQuantity;
+        } else {
+            cart.items.push({ productId, quantity: newQuantity });
+        }
+
+        await cart.save();
+        res.status(200).json({ success: true, message: 'Cart updated successfully', cart });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: 'Failed to update cart' });
+    }
+};
+
+
 
 const removeItem = async (req, res) => {
     try {
@@ -123,5 +161,6 @@ const loadCheckout = async (req,res) => {
 module.exports = {
     addToCart,
     removeItem,
-    loadCheckout
+    loadCheckout,
+    updateCart
 };

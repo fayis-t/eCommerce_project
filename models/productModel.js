@@ -25,7 +25,11 @@ const productSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
-  images: [String]
+  images: [String],
+  offers: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Offer'
+  }]
 },{
     timestamps: true
 });

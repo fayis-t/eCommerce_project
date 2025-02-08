@@ -1,12 +1,16 @@
 const User = require('../models/userModel');
 const bcrypt = require('bcrypt');
-const { generateOtp, sendOtpEmail } = require('./otpController');
+const { generateOtp, sendOtpEmail, transporter } = require('./otpController');
 const productModel = require('../models/productModel');
 const addressModel = require('../models/addressModel');
 const cartModel = require('../models/cart');
 const orderModel = require('../models/orderModel');
 const categoryModel = require('../models/categoryModel');
-const mongoose = require('mongoose');
+const transactionModel = require('../models/transactionModel');
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
+const Offer = require('../models/offerModel');
+const { application } = require('express');
 
 const loadHome = async (req, res) => {
      try {
@@ -134,15 +138,147 @@ const userRegistration = async (req, res) => {
      }
 };
 
+const loadForgetPassword = async (req, res) => {
+     try {
+          res.render('forgetPassword');
+     } catch (error) {
+          console.log('error on loading forget passwrod:', error);
+          res.status(500).json({ error: 'Failed to load forget password' });
+     }
+}
+
+const sendEmail = async (req, res) => {
+     try {
+          const { email } = req.body;
+
+          if (!email) {
+               return res.status(404).json({ success: false, message: 'Email is required' });
+          }
+
+          const user = await User.findOne({ email });
+
+          if (!user) {
+               return res.status(404).json({ success: false, message: 'User with this email does not exist' });
+          }
+
+          const resetToken = crypto.randomBytes(8).toString('hex');
+          const tokenExpiry = Date.now() + 3600000;
+          // console.log(resetToken);
+          user.resetPasswordToken = resetToken;
+          user.resetPasswordExpires = tokenExpiry;
+          await user.save();
+
+          const resetURL = `${req.protocol}://${req.get('host')}/reset-password/${resetToken}`;
+          const mailOptions = {
+               from: process.env.EMAIL_USER,
+               to: user.email,
+               subject: 'Password Reset',
+               html: `
+                <div style="font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);">
+    <h2 style="color: #2E8B57; text-align: center;">Reset Your Password</h2>
+    <p style="font-size: 16px; text-align: center; margin: 20px 0; color: #555;">
+        Need to reset your password? Don’t worry, it happens to the best of us. Click the button below to securely reset your password.
+    </p>
+    <div style="text-align: center; margin: 30px 0;">
+        <a href="${resetURL}" 
+           style="display: inline-block; padding: 12px 25px; font-size: 16px; font-weight: bold; 
+                  color: #fff; background: linear-gradient(to right, #43A047, #2E7D32); text-decoration: none; 
+                  border-radius: 8px; transition: background 0.3s ease;">
+           Reset Password
+        </a>
+    </div>
+    <p style="font-size: 14px; color: #666; text-align: center;">
+        If you didn’t request this, you can safely ignore this email.
+    </p>
+    <p style="font-size: 14px; text-align: center; color: #777; margin-top: 20px;">
+        If you have any questions, feel free to <a href="mailto:admin@gmail.com" style="color: #2E7D32; text-decoration: none;">contact us</a>.
+    </p>
+</div>
+
+            `,
+          };
+
+          await transporter.sendMail(mailOptions);
+
+          res.status(200).json({ success: true, message: 'We have sent link to reset your password. please check your mail.' });
+
+     } catch (error) {
+          console.log('error on sending email', error);
+          res.status(500).json({ error: 'Failed to send email' });
+     }
+}
+
+const loadResetPassword = async (req, res) => {
+     try {
+          const resetToken = req.params.token;
+          const user = await User.findOne({
+               resetPasswordToken: resetToken,
+               resetPasswordExpires: { $gt: Date.now() }
+          });
+
+          if(!user){
+               return res.status(404).json({ success: false, message: 'Reset password token is invalid or has expired', token:null  });
+          }
+
+          res.render('resetPassword', { token: resetToken });
+     } catch (error) {
+          console.log('error on loading reset password', error);
+          res.status(404).json({ error: 'Failed to load reset password' });
+     }
+}
+
+const resetPassword = async (req, res) => {
+     try {
+          const { token, newPassword, confirmPassword } = req.body;
+
+          if(!newPassword || !confirmPassword){
+               return res.status(404).json({ success: false, message: 'All fields are required', token });
+          }
+
+          const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
+          if (!passwordRegex.test(newPassword)) {
+               return res.status(400).json({success: false, message: "Password must be at least 8 characters, include an uppercase letter, a lowercase letter, and a number." });
+          }
+
+          if(newPassword !== confirmPassword){
+               return res.status(404).json({ success: false, message: `Password dosn't match!`, token });
+          }
+
+          const user = await User.findOne({
+               resetPasswordToken: token,
+               resetPasswordExpires: { $gt: Date.now() }
+          });
+
+          if(!user){
+               return res.status(404).json({ success: false, message: `Invalid token or token has expired, please try again.`, token });
+          }
+
+          const saltRounds = 10;
+          const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+          user.password = hashedPassword;
+          user.resetPasswordToken = undefined;
+          user.resetPasswordExpires = undefined;
+          await user.save();
+
+          res.status(200).json({ success: true, message: `Reset password successfully` });
+
+     } catch (error) {
+          console.log('error on resetting password', error);
+          res.status(404).json({ error: 'Failed to reset password' });
+     }
+}
+
 const loadUserProfile = async (req, res) => {
      try {
           const user = req.session.userid;
           const userData = await User.findById(user);
           const addresses = await addressModel.find({ userId: user });
-          const orders = await orderModel.find({userId: user});
+          const orders = await orderModel.find({ userId: user });
+          const transactions = await transactionModel.find({ userId: user });
           // console.log(orders);
           if (!userData.is_blocked) {
-               res.render('user-profile', { user, userData, addresses, orders });
+               res.render('user-profile', { user, userData, addresses, orders, transactions });
           } else {
                res.redirect('/login');
           }
@@ -204,7 +340,7 @@ const editAddress = async (req, res) => {
           const addressId = req.params.id;
           const addressData = await addressModel.findById(addressId);
           const { name, address, country, city, state, pincode, mobile } = req.body;
-          
+
           addressData.name = name;
           addressData.address = address;
           addressData.country = country;
@@ -231,8 +367,8 @@ const changePassword = async (req, res) => {
           const { currentPassword, newPassword, conformPassword } = req.body;
           // console.log(currentPassword, newPassword, conformPassword);
 
-          if(newPassword !== conformPassword){
-              return res.status(400).json({message: 'New password and Re-enter password not match!'});
+          if (newPassword !== conformPassword) {
+               return res.status(400).json({ message: 'New password and Re-enter password not match!' });
           }
 
           const checkPassword = await bcrypt.compare(currentPassword, userData.password);
@@ -259,25 +395,25 @@ const changePassword = async (req, res) => {
 
 const loadCart = async (req, res) => {
      try {
-         const user = req.session.userid;
-         const cartData = await cartModel.findOne({ userId: user })
-             .populate({
-                 path: 'items.productId',
-                 select: ' _id name price images stock',
-             });
-             const totalPrice = cartData.items.reduce((acc, item) => {
+          const user = req.session.userid;
+          const cartData = await cartModel.findOne({ userId: user })
+               .populate({
+                    path: 'items.productId',
+                    select: ' _id name price images stock',
+               });
+          const totalPrice = cartData.items.reduce((acc, item) => {
                const itemTotal = item.productId.price * (item.quantity || 1); // Default quantity to 1 if not present
                return acc + itemTotal;
-           }, 0);
+          }, 0);
           //  console.log(totalPrice);
-     
-         res.render('shop-cart', { user, cartData, totalPrice });
+
+          res.render('shop-cart', { user, cartData, totalPrice });
      } catch (error) {
-         console.log(error);
-         res.status(500).send('Error loading cart');
+          console.log(error);
+          res.status(500).send('Error loading cart');
      }
- };
- 
+};
+
 
 const deleteAddress = async (req, res) => {
      try {
@@ -296,8 +432,42 @@ const deleteAddress = async (req, res) => {
 const loadAllProducts = async (req, res) => {
      try {
           const user = req.session.userid;
-          const products = await productModel.find({ is_listed: true });
-          res.render('product', { products, user });
+          const products = await productModel.find({ is_listed: true }).populate('category');
+          const categories= await categoryModel.find({ is_listed: true });
+          
+          const activeOffers = await Offer.find({
+               status: true,
+               expiryDate: {$gte: new Date()}
+          });
+
+          const visibleProducts = products.filter(product => {
+               return product.is_listed === true && product.category && product.category.is_listed === true;
+          });
+          
+          const productData = visibleProducts.map(product => {
+               let applicableOffer = null;
+               let offerPrice = null;
+
+               const productOffer = activeOffers.find(offer => offer.offerType === 'product' && offer.selectItem.equals(product._id));
+               const categoryOffer = activeOffers.find(offer => offer.offerType === 'category' && offer.selectItem.equals(product.category._id));
+
+               if(productOffer) applicableOffer = productOffer;
+               else if(categoryOffer) applicableOffer = categoryOffer;
+
+               if(applicableOffer){
+                    offerPrice = product.price - (product.price * (applicableOffer.discountPercentage / 100));
+               }
+
+               return {
+                    ...product._doc,
+                    offer: applicableOffer,
+                    offerPrice,
+                    discountPercentage: applicableOffer ? applicableOffer.discountPercentage : 0
+               };
+               
+          });
+
+          res.render('product', { products: productData, user, categories });
      } catch (error) {
           console.log(error);
      }
@@ -305,53 +475,79 @@ const loadAllProducts = async (req, res) => {
 
 
 const loadFilterProducts = async (req, res) => {
-     try {   
-         console.log(req.query);
-         const { category, sort, search } = req.query;
-         let query = {};
- 
-         // Filter by category
-         if (category && category !== '*') {
-             const categoryDoc = await categoryModel.findOne({ name: category });
-             console.log(categoryDoc);
-             if (categoryDoc) {
-                 query.category = categoryDoc._id;
-             } else {
-                 return res.status(400).json({ error: 'Invalid category name' });
-             }
-         }
- 
-         // Filter by search
-         if (search) {
-             query.name = { $regex: search, $options: 'i' }; // Case-insensitive search
-         }
- 
-         // Fetch products from the database
-         let productsQuery = productModel.find(query);
- 
-         // Apply sorting at the database level
-         if (sort) {
-             if (sort === 'price:-low to high') {
-                 productsQuery = productsQuery.sort({ price: 1 }); // Ascending
-             } else if (sort === 'price:-high to low') {
-                 productsQuery = productsQuery.sort({ price: -1 }); // Descending
-             } else if (sort === 'popularity') {
-                 productsQuery = productsQuery.sort({ sales: -1 }); // Descending
-             } else if (sort === 'new-arrivals') {
-                 productsQuery = productsQuery.sort({ createdAt: -1 }); // Most recent
-             } else if (sort === 'default') {
-                 productsQuery = productsQuery.sort();
-             }
-         }
- 
-         const products = await productsQuery.exec();
-         res.json({ products });
- 
+     try {
+          const { category, sort, search } = req.query;
+          let query = {};
+          const product = await productModel.find({ is_listed: true }).populate('category').sort(query);
+
+          // Filter by category
+          if (category && category !== '*') {
+               const categoryDoc = await categoryModel.findOne({ name: category });
+               if (categoryDoc) {
+                    query.category = categoryDoc._id;
+               } else {
+                    return res.status(400).json({ error: 'Invalid category name' });
+               }
+          }
+
+          // Filter by search
+          if (search) {
+               query.name = { $regex: search, $options: 'i' }; 
+          }
+
+          // Fetch products from the database
+          let productsQuery = productModel.find(query);
+
+          // Apply sorting at the database level
+          if (sort) {
+               if (sort === 'price:-low to high') {
+                    productsQuery = productsQuery.sort({ price: 1 }); // Ascending
+               } else if (sort === 'price:-high to low') {
+                    productsQuery = productsQuery.sort({ price: -1 }); // Descending
+               } else if (sort === 'popularity') {
+                    productsQuery = productsQuery.sort({ sales: -1 }); // Descending
+               } else if (sort === 'new-arrivals') {
+                    productsQuery = productsQuery.sort({ createdAt: -1 }); // Most recent
+               } else if (sort === 'default') {
+                    productsQuery = productsQuery.sort();
+               }
+          }
+
+           const activeOffers = await Offer.find({ 
+               status: true,
+               expiryDate: {$gte: new Date()}
+            });
+
+            const productData = product.map(p =>{
+               let applicableOffer = null;
+               let offerPrice = null;
+
+               const productOffer = activeOffers.find(offer => offer.offerType === 'product' && offer.selectItem.equals(p._id));
+               const categoryOffer = activeOffers.find(offer => offer.offerType === 'category' && offer.selectItem.equals(p.category._id));
+
+               if(productOffer) applicableOffer = productOffer;
+               else if(categoryOffer) applicableOffer = categoryOffer;
+
+               if(applicableOffer){
+                    offerPrice = p.price - (p.price * (applicableOffer.discountPercentage / 100));
+               }
+
+               return {
+                    ...p._doc,
+                    offer: applicableOffer,
+                    offerPrice,
+                    discountPercentage: applicableOffer ? applicableOffer.discountPercentage : 0
+               }
+          });
+
+          const products = await productsQuery.exec();
+          res.json({products, product: productData});
+
      } catch (error) {
-         console.error('Error on loading filter products:', error);
-         res.status(500).json({ error: 'Failed to load products' });
+          console.error('Error on loading filter products:', error);
+          res.status(500).json({ error: 'Failed to load products' });
      }
- };
+};
 
 
 
@@ -365,7 +561,7 @@ const loadProductDetails = async (req, res) => {
           const { id } = req.params;
           // console.log(id);
           const product = await productModel.findOne({ _id: id });
-          
+
           res.render('product-details', { product, products, user });
      } catch (error) {
           console.log(error);
@@ -373,7 +569,7 @@ const loadProductDetails = async (req, res) => {
 }
 
 const logout = async (req, res) => {
-     try {
+     try {   
           // console.log(req.session.userid);
           req.session.userid = null;
           res.redirect('/');
@@ -389,6 +585,10 @@ module.exports = {
      userLogin,
      loadRegister,
      userRegistration,
+     loadForgetPassword,
+     sendEmail,
+     loadResetPassword,
+     resetPassword,
      loadAllProducts,
      loadFilterProducts,
      loadProductDetails,

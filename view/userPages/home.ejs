@@ -1,5 +1,19 @@
 <%- include('../userLayouts/header.ejs') %>
 <%- include('../userLayouts/pageHeader.ejs') %>
+	<style>
+		.offer-tag{
+			position: absolute;
+			top: 5px;
+			left: 10px;
+			background-color: rgb(198, 22, 22);
+			color: white;
+			padding: 5px 10px;
+			border-radius: 5px;
+			font-size: 12px;
+			font-weight: bold;
+			z-index: 10;
+		}
+	</style>
 
 	<!-- Slider -->
 	<section class="section-slide">
@@ -158,6 +172,11 @@
 						<a href='/productDetails/<%= product._id %>'>
 							<img src="/uploads/<%= product.images[0] %>" alt="IMG-PRODUCT">
 						</a>	
+						<% if(product.offer){ %>
+							<span class="offer-tag">
+								<%= product.offer.discountPercentage %>% off
+							</span>
+						<% } %>	
 						</div>
 						<div class="block2-txt flex-w flex-t p-t-14">
 							<div class="block2-txt-child1 flex-col-l ">
@@ -166,9 +185,24 @@
 									<%= product.name %>
 								</a>
 
-								<span class="stext-105 cl3">
+								<!-- <span class="stext-105 cl3">
 									<%= product.price %>
-								</span>
+								</span> -->
+
+								<h5>
+									<% if(product.offerPrice !== null){ %>
+										<div style="text-decoration: line-through; color: #888; font-size: 14px;">
+											₹<%= product.price %>
+										</div>
+										<div style="color: #c61616; font-size: 18px; font-weight: bold;">
+											₹
+										</div>
+									<% }else{ %>
+										<div>
+											₹<%= product.price %>
+										</div>
+									<% } %>	
+								</h5>
 							</div>
 
 							<div class="block2-txt-child2 flex-r p-t-3">

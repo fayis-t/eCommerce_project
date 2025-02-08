@@ -126,7 +126,7 @@
                         </div>
  
                         <div class="size-209 p-t-1">
-                            <span class="mtext-110 cl2">
+                            <span class="mtext-110 cl2" id="totalPrice">
                                 ₹ <%= totalPrice %>
                             </span>
                         </div>
@@ -142,6 +142,120 @@
 </form>
 
 <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const quantityInputs = document.querySelectorAll('#quantity');
+        const increaseButtons = document.querySelectorAll('#increase-btn');
+        const decreaseButtons = document.querySelectorAll('#decrease-btn');
+        const maxQuantity = 5;
+    
+        // Select the element to update the total price of the cart
+        const totalPriceElement = document.getElementById('totalPrice');
+        
+        let cartTotal = parseFloat(totalPriceElement.textContent.replace('₹', '').trim());
+    
+        quantityInputs.forEach((quantityInput, index) => {
+            const increaseBtn = increaseButtons[index];
+            const decreaseBtn = decreaseButtons[index];
+            const stock = parseInt(quantityInput.closest('tr').querySelector('#productStock').value);
+            const unitPrice = parseFloat(quantityInput.closest('tr').querySelector('#productPrice').textContent.replace('₹', '').trim());
+            const totalPriceElementForItem = quantityInput.closest('tr').querySelector('.column-5');
+            const productId = quantityInput.closest('tr').querySelector('#productid').value;
+    
+            const updateButtonStates = () => {
+                const currentQuantity = parseInt(quantityInput.value);
+                const maxAllowedQuantity = Math.min(stock, maxQuantity);
+    
+                decreaseBtn.style.opacity = currentQuantity <= 1 ? '0.5' : '1';
+                decreaseBtn.style.pointerEvents = currentQuantity <= 1 ? 'none' : 'auto';
+    
+                increaseBtn.style.opacity = currentQuantity >= maxAllowedQuantity ? '0.5' : '1';
+                increaseBtn.style.pointerEvents = currentQuantity >= maxAllowedQuantity ? 'none' : 'auto';
+    
+                // Update the price for the item
+                totalPriceElementForItem.textContent = `₹ ${(unitPrice * currentQuantity).toFixed(2)}`;
+                
+                // Update the total price of the cart
+                cartTotal = Array.from(quantityInputs).reduce((total, input) => {
+                    const row = input.closest('tr');
+                    const price = parseFloat(row.querySelector('.column-3').textContent.replace('₹', '').trim());
+                    const qty = parseInt(input.value);
+                    return total + (price * qty);
+                }, 0);
+                
+                totalPriceElement.textContent = `₹ ${cartTotal.toFixed(2)}`;
+            };
+    
+            increaseBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                let currentQuantity = parseInt(quantityInput.value);
+                if (currentQuantity < stock && currentQuantity < maxQuantity) {
+                    quantityInput.value = currentQuantity + 1; // increase quantity
+                    updateServerCart(productId, currentQuantity + 1);
+                }
+                updateButtonStates();
+            });
+    
+            decreaseBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                let currentQuantity = parseInt(quantityInput.value);
+                if (currentQuantity > 1) {
+                    quantityInput.value = currentQuantity - 1; // decrease quantity
+                    updateServerCart(productId, currentQuantity - 1);
+                }
+                updateButtonStates();
+            });
+    
+            quantityInput.addEventListener('input', () => {
+                const newQuantity = parseInt(quantityInput.value);
+                if (newQuantity > 0 && newQuantity <= stock) {
+                    updateServerCart(productId, newQuantity);
+                } else {
+                    quantityInput.value = 1;
+                    updateServerCart(productId, 1);
+                }
+                updateButtonStates();
+            });
+    
+            updateButtonStates();
+        });
+    });
+    
+    // Function to update cart in the database
+    function updateServerCart(productId, newQuantity) {
+        fetch('/updateCart', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                productId: productId,
+                newQuantity: newQuantity
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success) {
+                showToast('Failed to update cart', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error updating cart:', error);
+            showToast('Error updating cart', 'error');
+        });
+    }
+    
+    // Show toast messages
+    function showToast(message, type) {
+        Swal.fire({
+            icon: type,
+            title: message,
+            timer: 2000,
+            showConfirmButton: false,
+        });
+    }
+
+
+
 // Add event listener to handle product removal
 const cartItems = document.querySelectorAll('.cart-remove');
 cartItems.forEach((item) => {
@@ -180,78 +294,9 @@ cartItems.forEach((item) => {
 });
 
 
-document.addEventListener('DOMContentLoaded', () => {
-    const quantityInputs = document.querySelectorAll('#quantity');
-    const increaseButtons = document.querySelectorAll('#increase-btn');
-    const decreaseButtons = document.querySelectorAll('#decrease-btn');
-    const maxQuantity = 5;
-
-    quantityInputs.forEach((quantityInput, index) => {
-        const increaseBtn = increaseButtons[index];
-        const decreaseBtn = decreaseButtons[index];
-        const stock = parseInt(quantityInput.closest('tr').querySelector('#productStock').value);
-        const unitPrice = parseFloat(quantityInput.closest('tr').querySelector('#productPrice').textContent.replace('₹', '').trim());
-        const totalPriceElement = quantityInput.closest('tr').querySelector('.column-5');
-        const productId = quantityInput.closest('tr').querySelector('#productid').value;
-
-        const updateButtonStates = () => {
-            const currentQuantity = parseInt(quantityInput.value);
-            const maxAllowedQuantity = Math.min(stock, maxQuantity);
-
-            decreaseBtn.style.opacity = currentQuantity <= 1 ? '0.5' : '1';
-            decreaseBtn.style.pointerEvents = currentQuantity <= 1 ? 'none' : 'auto';
-
-            increaseBtn.style.opacity = currentQuantity >= maxAllowedQuantity ? '0.5' : '1';
-            increaseBtn.style.pointerEvents = currentQuantity >= maxAllowedQuantity ? 'none' : 'auto';
-
-            totalPriceElement.textContent = `₹ ${(unitPrice * currentQuantity).toFixed(2)}`;
-        };
-
-        increaseBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            let currentQuantity = parseInt(quantityInput.value);
-            if (currentQuantity < stock && currentQuantity < maxQuantity) {
-                // currentQuantity += 1;
-                quantityInput.value = currentQuantity;
-                updateButtonStates();
-                updateServerCart(productId, currentQuantity);
-            } else {
-                showToast('Stock unavailable or maximum quantity reached!', 'error');
-            }
-        });
-
-        decreaseBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            let currentQuantity = parseInt(quantityInput.value);
-            if (currentQuantity > 1) {
-                // currentQuantity -= 1;
-                quantityInput.value = currentQuantity;
-                updateButtonStates();
-                updateServerCart(productId, currentQuantity);
-            } else {
-                showToast('Quantity cannot be less than 1!', 'error');
-            }
-        });
-
-        quantityInput.addEventListener('change', () => {
-            let currentQuantity = parseInt(quantityInput.value);
-            if (isNaN(currentQuantity) || currentQuantity < 1) {
-                currentQuantity = 1;
-            } else if (currentQuantity > Math.min(stock, maxQuantity)) {
-                currentQuantity = Math.min(stock, maxQuantity);
-            }
-            quantityInput.value = currentQuantity;
-            updateButtonStates();
-            updateServerCart(productId, currentQuantity);
-        });
-
-        updateButtonStates();
-    });
-});
 
 
 
-</script>
-
-<%- include('../userLayouts/pageFooter.ejs') %>
+    </script>
+    
 <%- include('../userLayouts/footer.ejs') %>

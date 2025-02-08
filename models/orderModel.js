@@ -10,9 +10,35 @@ const orderSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     },
-    address: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Address'
+    shipping_address: {
+        name: {
+            type: String,
+            required: true
+        },
+        address: {
+            type: String,
+            required: true
+        },
+        country: {
+            type: String,
+            required: true
+        },
+        city: {
+            type: String,
+            required: true
+        },
+        state: {
+            type: String,
+            required: true
+        },
+        pincode: {
+            type: Number,
+            required: true
+        },
+        mobile: {
+            type: Number,
+            required: true
+        }
     },
     payment_type: {
         type: String,
@@ -39,6 +65,14 @@ const orderSchema = new mongoose.Schema({
             quantity: {
                 type: Number,
                 required: true
+            },
+            is_canceled: {
+                type: Boolean,
+                default: false
+            },
+            is_returned:{
+                type: Boolean,
+                default: false
             }
         }
     ],

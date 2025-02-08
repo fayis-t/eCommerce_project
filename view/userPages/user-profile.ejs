@@ -6,7 +6,7 @@
         <!-- Left Navigation Bar -->
         <div class="col-md-3">
           <div class="card"
-            style="border: none; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); background: #00897b; color: white;">
+            style="border: none; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); background: #4caf50; color: white;">
             <div class="card-body text-center">
               <h4>Hello,</h4>
               <h5 id="profileNameDisplay" style="font-weight: bold;">
@@ -16,13 +16,18 @@
           </div>
           <div class="nav flex-column nav-pills mt-3" id="profileTabs" role="tablist" aria-orientation="vertical">
             <button class="nav-link active" id="user-profile-tab" data-bs-target="#userProfile" type="button" role="tab"
-              style="border-radius: 5px; font-weight: bold; color: white; background-color: #00796b; margin-bottom: 10px;">User Profile</button>
+              style="border-radius: 5px; font-weight: bold; color: white; background-color: #4caf50; margin-bottom: 10px;">User
+              Profile</button>
             <button class="nav-link" id="address-tab" data-bs-target="#address" type="button" role="tab"
-              style="border-radius: 5px; font-weight: bold; color: white; background-color: #00796b; margin-bottom: 10px;">Your Addresses</button>
+              style="border-radius: 5px; font-weight: bold; color: white; background-color: #4caf50; margin-bottom: 10px;">Your
+              Addresses</button>
             <a href="/orderList" class="nav-link" id="orders-tab" data-bs-target="#orders" role="tab"
-              style="border-radius: 5px; font-weight: bold; color: white; background-color: #00796b; margin-bottom: 10px; padding-left: 90px;">Orders</a>
+              style="border-radius: 5px; font-weight: bold; color: white; background-color: #4caf50; margin-bottom: 10px; padding-left: 110px;">Orders</a>
+            <button class="nav-link" id="wallet-tab" data-bs-target="#wallet" type="button" role="tab"
+              style="border-radius: 5px; font-weight: bold; color: white; background-color: #4caf50; margin-bottom: 10px;">Wallet</button>
             <button class="nav-link" id="password-tab" data-bs-target="#password" type="button" role="tab"
-              style="border-radius: 5px; font-weight: bold; color: white; background-color: #00796b; margin-bottom: 10px;">Change Password</button>
+              style="border-radius: 5px; font-weight: bold; color: white; background-color: #4caf50; margin-bottom: 10px;">Change
+              Password</button>
             <button class="nav-link" id="logout-tab" type="button"
               style="border-radius: 5px; font-weight: bold; color: white; background-color: #d32f2f;">Logout</button>
           </div>
@@ -33,7 +38,7 @@
           <!-- User Profile Section -->
           <div id="userProfile" class="content-section active" style="display: block;">
             <div class="card" style="border: none; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);">
-              <div class="card-header" style="background: #00897b; color: white;">
+              <div class="card-header" style="background: #4caf50; color: white;">
                 <h5>User Profile</h5>
               </div>
               <div class="card-body">
@@ -41,15 +46,13 @@
                   <div class="mb-3">
                     <label for="profileName" class="form-label">Name</label>
                     <input type="text" class="form-control" id="profileName" value="<%= userData.name %>"
-                      style="border-radius: 5px; border-color: #b2dfdb;">
+                      style="border-radius: 5px; border-color: #000000;">
                   </div>
                   <div class="mb-3">
-                    <label for="profileEmail" class="form-label">Email</label>
-                    <input type="email" class="form-control" id="profileEmail" value="<%= userData.email %>"
-                      style="border-radius: 5px; border-color: #b2dfdb;">
+                    <a href="#" style="color: rgb(42, 41, 41);">Email: <%= userData.email %></a>
                   </div>
                   <button type="submit" class="btn btn-primary" onclick="editUserProfile(event)"
-                    style="background: #00796b; border: none;">Save Changes</button>
+                    style="background: #4caf50; border: none;">Save Changes</button>
                 </form>
               </div>
             </div>
@@ -58,8 +61,8 @@
           <!-- Manage Address Section -->
           <div id="address" class="content-section" style="display: none;">
             <div class="card" style="border: none; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);">
-              <div class="card-header" style="background: #00897b; color: white;">
-                <h5>Your Addresses</h5> 
+              <div class="card-header" style="background: #4caf50; color: white;">
+                <h5>Your Addresses</h5>
               </div>
               <div class="card-body">
                 <div id="addressList">
@@ -91,7 +94,7 @@
                         </p>
                         <div>
                           <button class="btn btn-outline-primary btn-sm edit-btn"
-                            style="border-color: #80cbc4; color: #00796b;" data-id="<%= address._id %>"
+                            style="border-color: #000000; color: #4caf50;" data-id="<%= address._id %>"
                             data-name="<%= address.name %>" data-address="<%= address.address %>"
                             data-country="<%= address.country %>" data-city="<%= address.city %>"
                             data-state="<%= address.state %>" data-pincode="<%= address.pincode %>"
@@ -108,16 +111,67 @@
                           <% } %>
                 </div>
 
-                <button class="btn btn-primary btn-sm" id="addAddressBtn" style="background: #00796b; border: none;">Add
+                <button class="btn btn-primary btn-sm" id="addAddressBtn" style="background: #4caf50; border: none;">Add
                   New Address</button>
               </div>
             </div>
           </div>
 
+          <!- wallet -!>
+          <div id="wallet" class="content-section" style="display: none; padding: 20px; font-family: Arial, sans-serif;">
+            <div class="wallet-card" style="border-radius: 10px; padding: 20px; background: linear-gradient(135deg, #4caf50, #81c784); color: white; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); margin-bottom: 20px;">
+              <h4 style="margin: 0 0 10px; font-size: 1.5em;">Wallet Balance</h4>
+              <p style="margin: 0; font-size: 2em; font-weight: bold;">
+                ₹ <%= userData.wallet %> 
+              </p>
+            </div>
+          
+            <div class="transaction-section" style="margin-top: 20px;">
+              <h4 style="font-size: 1.5em; margin-bottom: 15px; color: #333;">Transaction History</h4>
+              <div class="transaction-table" style="overflow-x: auto;">
+                <table class="table" style="width: 100%; border-collapse: collapse; background-color: #f9f9f9; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+                  <thead style="background-color: #4caf50; color: white; text-align: left;">
+                    <tr>
+                      <th style="padding: 10px;">Date</th>
+                      <th style="padding: 10px;">Type</th>
+                      <th style="padding: 10px;">Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% if (transactions.length > 0) { %>
+                      <% transactions.forEach(transaction => { %>
+                        <tr style="border-bottom: 1px solid #ddd;">
+                          <td style="padding: 10px;">
+                            <%= new Date(transaction.createdAt).toLocaleDateString() %>
+                          </td>
+                          <td style="padding: 10px; text-transform: capitalize;">
+                            <%= transaction.type %>
+                          </td>
+                          <td style="padding: 10px;">
+                            <% if (transaction.type === 'credit') { %>
+                              <span style="color: #008000;">+ ₹ <%= transaction.amount %></span>
+                            <% } else { %>
+                              <span style="color: red;">-₹ <%= transaction.amount %></span>
+                            <% } %>
+                          </td>
+                        </tr>
+                      <% }) %>
+                    <% } else { %>
+                      <tr>
+                        <td colspan="3" style="text-align: center; padding: 20px; color: #666;">No transactions found</td>
+                      </tr>
+                    <% } %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          
+
           <!-- Change Password Section -->
           <div id="password" class="content-section" style="display: none;">
             <div class="card" style="border: none; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);">
-              <div class="card-header" style="background: #00897b; color: white;">
+              <div class="card-header" style="background: #4caf50; color: white;">
                 <h5>Change Password</h5>
               </div>
               <div class="card-body">
@@ -126,20 +180,20 @@
                     <div id="message" style="display: none; margin-bottom: 15px; font-size: 0.9rem;"></div>
                     <label for="currentPassword" class="form-label">Current password</label>
                     <input type="password" class="form-control" id="currentPassword"
-                      style="border-radius: 5px; border-color: #b2dfdb;">
+                      style="border-radius: 5px; border-color: #000000;">
                   </div>
                   <div class="mb-3">
                     <label for="newPassword" class="form-label">New password</label>
                     <input type="password" class="form-control" id="newPassword"
-                      style="border-radius: 5px; border-color: #b2dfdb;">
+                      style="border-radius: 5px; border-color: #000000;">
                   </div>
                   <div class="mb-3">
                     <label for="newPassword" class="form-label">Re-enter new password</label>
                     <input type="password" class="form-control" id="conformPassword"
-                      style="border-radius: 5px; border-color: #b2dfdb;">
+                      style="border-radius: 5px; border-color: #000000;">
                   </div>
                   <button type="button" onclick="changePassword(event)" class="btn btn-primary"
-                    style="background: #00796b; border: none;">Save changes</button>
+                    style="background: #4caf50; border: none;">Save changes</button>
                 </form>
               </div>
             </div>
@@ -213,7 +267,7 @@
           </div>
           <div class="modal-body">
             <form id="editAddressForm" novalidate>
-              <input type="hidden" id="editAddressId"/>
+              <input type="hidden" id="editAddressId" />
               <div class="mb-3">
                 <label for="editName" class="form-label">Full name (firs and last name)</label>
                 <input type="text" class="form-control" id="editName" required />
@@ -253,7 +307,6 @@
     </div>
 
 
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
       document.addEventListener('DOMContentLoaded', () => {
@@ -276,9 +329,9 @@
             confirmButtonText: 'Yes',
             showCancelButton: true
           }).then(response => {
-            if(response.isConfirmed){
+            if (response.isConfirmed) {
               window.location.href = '/logout';
-            }else{
+            } else {
               window.location.href = '/profile';
             }
           })
@@ -294,12 +347,12 @@
           confirmButtonText: 'Yes'
         }).then(response => {
           if (response.isConfirmed) {
-            const name = document.getElementById('profileName').value; 
+            const name = document.getElementById('profileName').value;
 
             fetch('/editProfile', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ name})
+              body: JSON.stringify({ name })
             }).then(response => response.json())
               .then((data) => {
                 if (data.success) {
@@ -375,7 +428,7 @@
               .then((data) => {
                 if (data.success) {
                   Swal.fire('New Address Added', '', 'success')
-                  .then(()=> location.reload());
+                    .then(() => location.reload());
 
                   const modalInstance = bootstrap.Modal.getInstance(document.getElementById('addAddressModal'));
                   if (modalInstance) modalInstance.hide();
@@ -446,7 +499,7 @@
               .then((data) => {
                 if (data.success) {
                   Swal.fire('Address Updated', '', 'success')
-                  .then(() => location.reload());
+                    .then(() => location.reload());
 
                   // Hide the modal and reset the form
                   const modalInstance = bootstrap.Modal.getInstance(document.getElementById('editAddressModal'));
@@ -472,7 +525,7 @@
                 console.error('Error updating address:', error);
                 Swal.fire('Update Failed', 'Unable to update address.', 'error');
               });
-          }else{
+          } else {
             alert('Please fill out all fields.');
           }
         });
@@ -499,7 +552,7 @@
             fetch('/changePassword', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ currentPassword, newPassword, conformPassword})
+              body: JSON.stringify({ currentPassword, newPassword, conformPassword })
             })
               .then(response => response.json())
               .then((data) => {
@@ -507,12 +560,12 @@
                   Swal.fire('Password changed', '', 'success');
                   document.getElementById('changePasswordForm').reset();
 
-                } else if(data.message){
+                } else if (data.message) {
                   messageDiv.style.display = 'block';
                   messageDiv.style.color = 'red';
                   messageDiv.textContent = data.message;
                   // Swal.fire(data.message, '', 'warning');
-                }else{
+                } else {
                   Swal.fire('Failed to change password', '', 'error');
                 }
               })
@@ -539,9 +592,9 @@
               .then((data) => {
                 if (data.success) {
                   Swal.fire('Address deleted', '', 'success')
-                  .then(() => {
-                    location.reload();
-                  })
+                    .then(() => {
+                      location.reload();
+                    })
                 } else {
                   Swal.fire('Failed to delete address', '', 'error');
                 }

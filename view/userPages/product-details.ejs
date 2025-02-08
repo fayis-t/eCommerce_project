@@ -1,6 +1,19 @@
 <%- include('../userLayouts/header.ejs') %>
     <%- include('../userLayouts/pageHeader.ejs') %>
 
+
+        <style>
+            /* Hide spinner arrows in number input */
+            input[type="number"]::-webkit-outer-spin-button,
+            input[type="number"]::-webkit-inner-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+            }
+
+            input[type="number"] {
+                -moz-appearance: textfield;
+            }
+        </style>
         <!-- breadcrumb -->
         <div class="container">
             <div class="bread-crumb flex-w p-l-25 p-r-15 p-t-100 p-lr-0-lg">
@@ -59,11 +72,21 @@
                                 <%= product.name %>
                             </h4>
 
+                            <% if(product.offerPrice !== null){ %>
                             <div style="padding-top: 15px;">
-                                <span style="font-size: 20px; color: #666;">
+                                <span style="font-size: 16px; color: #888; text-decoration: line-through; margin-left: 10px;">
                                     ₹ <%= product.price %>
                                 </span>
+                                <span style="font-size: 20px; color: #d9534f; font-weight: bold; margin-left: 10px;">
+                                    ₹ <%= product.price %>
+                                </span>
+                                <% if(product.offer){ %>
+                                <span style="font-size: 14px; color: #d9534f; font-weight: bold; margin-left: 10px;">
+                                    (<%= product.discountPercentage %>% OFF)
+                                </span>
+                                <% } %>
                             </div>
+                            <% } %>
 
                             <p style="font-size: 16px; color: #888; margin-top: 15px;">
                                 <%= product.description %>
@@ -94,7 +117,7 @@
                                         <!-- Quantity Input -->
                                         <input class="mtext-104 cl3 txt-center num-product" type="number"
                                             name="num-product" id="quantity" value="1" min="1"
-                                            max="<%= product.stock %>">
+                                            max="<%= product.stock %>" inputmode="none">
 
                                         <!-- Increase Quantity Button -->
                                         <div class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m"
@@ -111,6 +134,8 @@
                                     </button>
                                 </div>
                             </div>
+
+
                         </div>
                     </div>
                 </div>
@@ -310,16 +335,13 @@
             });
 
 
-            // quantity handling
             document.addEventListener('DOMContentLoaded', () => {
-                const stock = document.getElementById('productStock').value;
+                const stock = parseInt(document.getElementById('productStock').value);
+                const maxQuantity = Math.min(stock, 5); // Limit max quantity to 5 or stock
                 const quantityInput = document.getElementById('quantity');
                 const increaseBtn = document.getElementById('increase-btn');
                 const decreaseBtn = document.getElementById('decrease-btn');
                 const addToCartBtn = document.getElementById('addToCart');
-
-                // console.log('sfls', stock);
-                
 
                 // Function to update button states
                 function updateButtonStates() {
@@ -329,32 +351,27 @@
                     decreaseBtn.style.opacity = currentQuantity <= 1 ? '0.5' : '1';
                     decreaseBtn.style.pointerEvents = currentQuantity <= 1 ? 'none' : 'auto';
 
-                    // Disable "+" button if quantity >= stock
-                    increaseBtn.style.opacity = currentQuantity >= stock ? '0.5' : '1';
-                    increaseBtn.style.pointerEvents = currentQuantity >= stock ? 'none' : 'auto';
-
-                    // if(stock === 0){
-                    //     addToCartBtn.disabled = true
-                    // }else{
-                    //     addToCartBtn.disabled = false
-                    // }
+                    // Disable "+" button if quantity >= maxQuantity
+                    increaseBtn.style.opacity = currentQuantity >= maxQuantity ? '0.5' : '1';
+                    increaseBtn.style.pointerEvents = currentQuantity >= maxQuantity ? 'none' : 'auto';
                 }
 
                 // Event: Increase Quantity
                 increaseBtn.addEventListener('click', (e) => {
-                    e.preventDefault();
+                    e.preventDefault();  // Prevent the default behavior
                     let currentQuantity = parseInt(quantityInput.value);
-                    if (currentQuantity < stock) {
-                        // quantityInput.value = currentQuantity + 1;
+                    if (currentQuantity < maxQuantity) {
+                        quantityInput.value = currentQuantity + 1;
                         updateButtonStates();
                     }
                 });
 
                 // Event: Decrease Quantity
-                decreaseBtn.addEventListener('click', () => {
+                decreaseBtn.addEventListener('click', (e) => {
+                    e.preventDefault();  // Prevent the default behavior
                     let currentQuantity = parseInt(quantityInput.value);
                     if (currentQuantity > 1) {
-                        // quantityInput.value = currentQuantity - 1;
+                        quantityInput.value = currentQuantity - 1;
                         updateButtonStates();
                     }
                 });
@@ -365,8 +382,8 @@
 
                     if (isNaN(currentQuantity) || currentQuantity < 1) {
                         quantityInput.value = 1; // Reset to 1 if invalid
-                    } else if (currentQuantity > stock) {
-                        quantityInput.value = stock; // Limit to stock
+                    } else if (currentQuantity > maxQuantity) {
+                        quantityInput.value = maxQuantity; // Limit to maxQuantity
                     }
 
                     updateButtonStates();
@@ -375,8 +392,6 @@
                 // Initialize Button States on Page Load
                 updateButtonStates();
             });
-
-
 
             //add to cart
             document.getElementById('addToCart').addEventListener('click', () => {

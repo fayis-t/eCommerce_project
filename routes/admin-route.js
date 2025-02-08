@@ -6,6 +6,8 @@ const { loadProductList, loadAddProduct, addProduct, loadEditProduct, editProduc
 const { loadOrderList, adminOrderDetails, changeOrderStatus } = require('../controller/orderController');
 const { uploadMultiple } = require('../middlewares/multer');
 const { ensureAdmin } = require('../middlewares/auth');
+const { loadOfferPage, getItem, addOffer, toggleOfferStatus, deleteOffer } = require('../controller/offerController');
+const { loadCouponPage, addCoupon, toggleCouponStatus, couponStatus, deleteCoupon } = require('../controller/couponContoller');
 
 router.set('view engine', 'ejs');
 router.set('views', './view/adminPages');
@@ -36,5 +38,16 @@ router.post('/editProduct/:id', ensureAdmin, uploadMultiple, editProduct);
 router.get('/orders', ensureAdmin, loadOrderList);
 router.get('/orderDetails/:id', ensureAdmin, adminOrderDetails);
 router.post('/api/orders/:orderId/status', changeOrderStatus);
+
+router.get('/offers', ensureAdmin, loadOfferPage);
+router.get('/getItems', ensureAdmin, getItem);
+router.post('/addOffer', ensureAdmin, addOffer);
+router.post('/toggleOfferStatus/:offerId', ensureAdmin, toggleOfferStatus);
+router.post('/deleteOffer/:offerId', ensureAdmin, deleteOffer);
+
+router.get('/coupons', ensureAdmin, loadCouponPage);
+router.post('/addCoupon', ensureAdmin, addCoupon);
+router.post('/couponStatus/:couponId', ensureAdmin, couponStatus);
+router.post('/deleteCoupon/:couponId', ensureAdmin, deleteCoupon);
 
 module.exports = router;

@@ -21,13 +21,15 @@
                                 <small class="text-muted">Order ID: <%= order.orderId %></small>
                         </div>
                         <div class="col-lg-6 col-md-6 ms-auto text-md-end">
+                            <b>Change Status&ensp;</b>
                             <select id="status-select-<%= order._id %>"
                                 class="form-select d-inline-block mb-lg-0 mr-5 mw-200">
-                                <option value="">Change status</option>
+                                <option value="<%= order.order_status%>"><%= order.order_status  %></option>
                                 <option value="Awaiting payment">Awaiting payment</option>
                                 <option value="Confirmed">Confirmed</option>
-                                <option value="Shipped">Shipped</option>
+                                <option value="Shipped">Returned</option>
                                 <option value="Delivered">Delivered</option>
+                                <option value="Canceled">Canceled</option>
                             </select>
                             <button class="btn btn-primary" onclick="changeStatus('<%= order._id %>')">Save</button>
                         </div>
@@ -46,7 +48,7 @@
                                     <p class="mb-1">
                                         <%= order.userId.name %> <br />
                                             <%= order.userId.email %><br />
-                                                <%= order.address.mobile %>
+                                                <%= order.shipping_address.mobile %>
                                     </p>
                                 </div>
                             </article>
@@ -76,9 +78,9 @@
                                 <div class="text">
                                     <h6 class="mb-1">Deliver to</h6>
                                     <p class="mb-1">
-                                        City: <%= order.address.city %>, <%= order.address.state %> <br />
-                                                <%= order.address.address %> <br />
-                                                    Pincode: <%= order.address.pincode %>
+                                        City: <%= order.shipping_address.city %>, <%= order.shipping_address.state %> <br />
+                                                <%= order.shipping_address.address %> <br />
+                                                    Pincode: <%= order.shipping_address.pincode %>
                                     </p>
                                 </div>
                             </article>
@@ -137,7 +139,7 @@
                                                             <dl class="dlist">
                                                                 <dt>Shipping cost:</dt>
                                                                 <dd>
-                                                                    <%= order.order_status %>
+                                                                    0
                                                                 </dd>
                                                             </dl>
                                                             <dl class="dlist">
@@ -163,6 +165,17 @@
                             <!-- table-responsive// -->
                         </div>
                         <!-- col// -->
+                        <div class="col-lg-1"></div>
+                            <div class="col-lg-4">
+                                <div class="box shadow-sm bg-light">
+                                    <h6 class="mb-15">Payment info</h6>
+                                    <p>
+                                        <img src="/public/assets/imgs/card-brands/2.png" class="border" height="20" /> Master Card **** **** 4768 <br />
+                                        Business name: Grand Market LLC <br />
+                                        Phone: +91 <%= order.shipping_address.mobile %>
+                                    </p>
+                                </div>
+                            </div>
                     </div>
                 </div>
                 <!-- card-body end// -->

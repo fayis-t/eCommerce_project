@@ -1,6 +1,21 @@
 <%- include('../userLayouts/header.ejs') %>
     <%- include('../userLayouts/pageHeader.ejs') %>
 
+    <style>
+        .offer-tag {
+            position: absolute;
+            top: 5px;
+            left: 10px;
+            background-color: rgb(198, 22, 22);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 10;
+        }
+    </style>
+
         <div class="bg0 m-t-70 p-b-150">
             <div class="container">
                 <div class="flex-w flex-sb-m p-b-52">
@@ -99,7 +114,12 @@
                             <div class="block2-pic hov-img0">
                               <a href="/productDetails/<%= product._id %>">
                                 <img src="/uploads/<%= product.images[0] %>" alt="IMG-PRODUCT">
-                              </a>  
+                              </a>
+                              <% if(product.offer){ %>
+                                <span class="offer-tag">
+                                    <%= product.discountPercentage %>% Off
+                                </span>
+                              <% } %>
                             </div>
                             <div class="block2-txt flex-w flex-t p-t-14">
                                 <div class="block2-txt-child1 flex-col-l ">
@@ -107,10 +127,18 @@
                                         class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
                                         <%= product.name %>
                                     </a>
-
-                                    <span class="stext-105 cl3">
-                                        ₹ <%= product.price %>
-                                    </span>
+                                    <% if(product.offerPrice !== null){ %>
+                                        <span class="stext-105 cl3" style="text-decoration: line-through; color: #888;">
+                                            ₹ <%= product.price %>
+                                        </span>
+                                        <span class="stext-105 cl3" style="color: #C61616; font-size: 18px; font-weight: bold;">
+                                            ₹ <%= product.offerPrice.toFixed(2) %>
+                                        </span>
+                                    <% }else{ %>
+                                        <span class="stext-105 cl3">
+                                            ₹ <%= product.price %>
+                                        </span>
+                                    <% } %>
                                 </div>
 
                                 <div class="block2-txt-child2 flex-r p-t-3">
@@ -155,24 +183,40 @@
         
                 // Dynamically create product cards
                 products.forEach(product => {
+                    const offerTag = product.offer ? `<span class='offer-tag'>${product.discountPercentage}% Off</span>` : '';
                     const productHTML = `
-                        <div class="col-sm-6 col-md-4 col-lg-3 p-b-35 isotope-item ${product.category}">
-                            <div class="block2">
-                                <div class="block2-pic hov-img0">
-                                    <a href="/productDetails/${product._id}">
-                                        <img src="/uploads/${product.images[0]}" alt="${product.name}">
+                         <div class="col-sm-6 col-md-4 col-lg-3 p-b-35 isotope-item">
+                        <!-- Block2 -->
+                        <div class="block2">
+                            <div class="block2-pic hov-img0">
+                              <a href="/productDetails/${product._id}">
+                                <img src="/uploads/${product.images[0]}" alt="IMG-PRODUCT">
+                              </a>  
+                              ${offerTag}
+                            </div>
+                            <div class="block2-txt flex-w flex-t p-t-14">
+                                <div class="block2-txt-child1 flex-col-l ">
+                                    <a href='/productDetails/${product._id}'
+                                        class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
+                                        ${product.name} 
                                     </a>
+
+                                    <span class="stext-105 cl3">
+                                        ${product.offerPrice !== null ? `<div><small style= 'text-decoration: line-through; opacity: 70%;'>₹ ${product.price}</small></div><div><span style='font-weight: bold; color: #FF5722;'>₹ ${product.offerPrice.toFixed(2)}</span></div>` : `₹ ${product.price}`}
+                                    </span>
                                 </div>
-                                <div class="block2-txt flex-w flex-t p-t-14">
-                                    <div class="block2-txt-child1 flex-col-l">
-                                        <a href='/productDetails/${product._id}' class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
-                                            ${product.name}
-                                        </a>
-                                        <span class="stext-105 cl3">₹ ${product.price}</span>
-                                    </div>
+
+                                <div class="block2-txt-child2 flex-r p-t-3">
+                                    <a href="#" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2">
+                                        <img class="icon-heart1 dis-block trans-04" src="images/icons/icon-heart-01.png"
+                                            alt="ICON">
+                                        <img class="icon-heart2 dis-block trans-04 ab-t-l"
+                                            src="images/icons/icon-heart-02.png" alt="ICON">
+                                    </a>
                                 </div>
                             </div>
                         </div>
+                        </div>   
                     `;
                     const productElement = document.createRange().createContextualFragment(productHTML);
                     grid.appendChild(productElement);

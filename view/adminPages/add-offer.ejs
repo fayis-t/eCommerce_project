@@ -1,0 +1,399 @@
+<%- include('../adminLayouts/header.ejs') %>
+    <%- include('../adminLayouts/pageHeader.ejs') %>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T5f3ZX04p49fl3vISvheDLmT6jgj9COjflPy9wcmA7AMkCs6i6ARlnEFiup5djL8" crossorigin="anonymous">
+
+
+    <section class="content-main">
+        <div class="content-header">
+            <div>
+                <h2 class="content-title card-title">Offer Management</h2>
+                <p>Manage offers and add new ones</p>
+            </div>
+        </div>
+
+        <div class="d-flex">
+            <!-- Add Offer Form Section -->
+            <div class="card me-4" style="flex: 1; min-width: 300px; max-width: 450px;">
+                <div class="card-body">
+                    <h5 class="card-title">Add New Offer</h5>
+                    <form id="addOfferForm" novalidate>
+                        <!-- Offer Name -->
+                        <div class="mb-3">
+                            <label for="offerName" class="form-label">Offer Name</label>
+                            <input type="text" class="form-control" id="offerName" name="offerName"
+                                placeholder="Enter Offer Name" required>
+                            <div id="offerNameError" class="text-danger"></div>
+                        </div>
+
+                        <!-- Discount Percentage -->
+                        <div class="mb-3">
+                            <label for="discountPercentage" class="form-label">Discount Percentage</label>
+                            <input type="number" class="form-control" id="discountPercentage" name="discountPercentage"
+                                placeholder="Enter percentage" min="5" max="90" required>
+                            <div id="discountPercentageError" class="text-danger"></div>
+                        </div>
+
+                        <!-- Offer Type -->
+                        <div class="mb-3">
+                            <label for="offerType" class="form-label">Offer Type</label>
+                            <select class="form-control" id="offerType" name="offerType" required>
+                                <option value="">Select Offer Type</option>
+                                <option value="category">Category</option>
+                                <option value="product">Product</option>
+                            </select>
+                            <div id="offerTypeError" class="text-danger"></div>
+                        </div>
+
+                        <!-- Select Item -->
+                        <div class="mb-3" id="selectItemDiv">
+                            <label for="selectItem" class="form-label" id="selectItemLabel">Select Item</label>
+                            <select class="form-control form-select-sm" id="selectItem" name="selectItem" required>
+                                <!-- Dynamically loaded options -->
+                            </select>
+                            <div id="selectItemError" class="text-danger"></div>
+                        </div>
+
+                        <!-- Expiry Date -->
+                        <div class="mb-3">
+                            <label for="expiryDate" class="form-label">Expiry Date</label>
+                            <input type="date" class="form-control" id="expiryDate" name="expiryDate" required>
+                            <div id="expiryDateError" class="text-danger"></div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Add Offer</button>
+                    </form>
+                    <div id="successMessage" class="text-success mt-2"></div>
+                </div>
+            </div>
+
+            <!-- Offer List Section -->
+            <div class="card flex-grow-1">
+                <div class="card-body">
+                    <h5 class="card-title">List of Offers</h5>
+                    <% if (offers.length===0) { %>
+                        <p class="text-info text-center">No offers found.</p>
+                        <% } else { %>
+                            <table class="table" id="offerTable">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">#</th>
+                                        <th scope="col">Name</th>
+                                        <th scope="col">Discount Percentage</th>
+                                        <th scope="col">Offer Type</th>
+                                        <th scope="col">Selected Item</th> <!-- New column for Category/Product -->
+                                        <th scope="col">Expiry Date</th>
+                                        <th scope="col">Status</th>
+                                        <th scope="col">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% offers.forEach((offer, index)=> { %>
+                                        <tr>
+                                            <th scope="row">
+                                                <%= index + 1 %>
+                                            </th>
+                                            <td>
+                                                <%= offer.offerName %>
+                                            </td>
+                                            <td>
+                                                <%= offer.discountPercentage %> %
+                                            </td>
+                                            <td>
+                                                <%= offer.offerType %>
+                                            </td>
+                                            <td>
+                                                <%= offer.selectedItemName %>
+                                            </td>
+                                            <td>
+                                                <%= new Date(offer.expiryDate).toLocaleDateString() %>
+                                            </td>
+                                            <td>
+                                                <span class="<%= offer.status ? 'badge bg-success' : 'badge bg-danger' %>" style="width: 60px; height: 20px;">
+                                                    <%= offer.status ? 'Active' : 'Inactive' %>
+                                                </span>
+
+                                            </td>
+                                            <td>
+                                                <div class="dropdown">
+                                                    <button class="btn btn-sm btn-light" id="dropdownMenuButton" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                        &#x22EE;
+                                                    </button>
+                                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                                        <li>
+                                                            <button class="dropdown-item text-info" onclick="toggleOfferStatus('<%= offer._id %>', '<%= offer.status %>')">
+                                                                <%= offer.status ? 'Deactivate' : 'Activate' %>
+                                                            </button>
+                                                        </li>
+                                                        <li>
+                                                            <button class="dropdown-item text-danger" onclick="deleteOffer('<%= offer._id %>', this)">
+                                                                Delete
+                                                            </button>
+                                                        </li>
+                                                    </ul>
+                                                    
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <% }) %>
+                                </tbody>
+                            </table>
+                            <% } %>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+<!-- Popper.js (required for dropdowns and tooltips) -->
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+
+<!-- Bootstrap 5.0.0-beta1 JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const offerTypeSelect =  document.getElementById('offerType');
+            const selectItemDiv = document.getElementById('selectItemDiv');
+            const selectItem = document.getElementById('selectItem');
+
+            offerTypeSelect.addEventListener('change', function(){
+                const selectedType = this.value;
+                if(selectedType){
+                    selectItemDiv.style.display = 'block';
+                    loadSelectItems(selectedType);
+                }else{
+                    selectItemDiv.style.display = 'none';
+                    selectItem.innerHTML = '';
+                }
+            });
+
+            function loadSelectItems(type){
+                fetch(`/admin/getItems?type=${type}`)
+                .then(response => response.json())
+                .then(data => {
+                    selectItem.innerHTML = '';
+                    data.items.forEach(item => {
+                        const option = document.createElement('option');
+                        option.value = item.id;
+                        option.textContent = item.name;
+                        selectItem.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading items:', error);
+                })
+            }
+
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('expiryDate').setAttribute('min', today);
+            document.getElementById('addOfferForm').addEventListener('submit', function(e){
+                e.preventDefault();
+                const formData = new FormData(this);
+                const data = Object.fromEntries(formData.entries());
+                console.log(data);
+                clearErrorMessages();
+
+                if(!validateOfferForm(data)) return;
+
+                fetch('/admin/addOffer',{
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                })
+                .then(response => response.json())
+                .then(response =>{
+                    if(response.success){
+                        addOfferRow(response.data, response.selectedItemName);
+                        Swal.fire('Success', 'Offer added successfully', 'success').then(()=>{
+                            location.reload();
+                        })
+                        
+                    }else{
+                        Swal.fire('Info', response.error, 'info');
+                    }
+                })
+                .catch(error => {
+                    Swal.fire('Error', 'An unexpected error occurred!', 'error');
+                });
+            });
+
+            function validateOfferForm(data){
+                let valid = true;
+
+                // Validate offer name:
+                if(!data.offerName || data.offerName.trim() === ''){
+                    document.getElementById('offerNameError').textContent = 'Offer name is required';
+                    valid = false;
+                }else if(data.offerName[0] === ' ' || data.offerName.length < 2 || data.offerName.length > 50){
+                    document.getElementById('offerNameError').textContent = 'Offer name should not start with space, and should be between 2 and 50 characters long';
+                    valid = false;
+                }else{
+                    document.getElementById('offerNameError').textContent = '';
+                }
+
+                // Validate offer percentage:
+                if(!data.discountPercentage){
+                    document.getElementById('discountPercentageError').textContent = 'Discount percentage is required';
+                    valid = false;
+                }else if(isNaN(data.discountPercentage) || data.discountPercentage < 5 || data.discountPercentage > 90){
+                    document.getElementById('discountPercentageError').textContent = 'Discount percentage should be a number between 5 and 90';
+                    valid = false;
+                }else{
+                    document.getElementById('discountPercentageError').textContent = '';
+                }
+
+                // Validate offer type:
+                if(!data.offerType || data.offerType.trim() === ''){
+                    document.getElementById('offerTypeError').textContent = 'Offer type is required';
+                    valid = false;
+                }else{
+                    document.getElementById('offerTypeError').textContent = '';
+                }
+
+                // Validate offer select item:
+                if(!data.selectItem || data.selectItem.trim() === ''){
+                    document.getElementById('selectItemError').textContent = 'Select item is required';
+                    valid = false;
+                }else{
+                    document.getElementById('selectItemError').textContent = '';
+                }
+
+                // Validate offer expiry date:
+                const expiryDate = new Date(data.expiryDate);
+                const today = new Date();
+                if(!data.expiryDate){
+                    document.getElementById('expiryDateError').textContent = 'Expire date is required';
+                    valid = false;
+                }else if(isNaN(expiryDate.getTime()) || expiryDate <= today){
+                    document.getElementById('expiryDateError').textContent = 'Expire date must be future date';
+                    valid = false;
+                }else{
+                    document.getElementById('expiryDateError').textContent = '';
+                }
+
+                return valid;
+            }
+
+            function clearErrorMessages(){
+                document.getElementById('offerNameError').textContent = '';
+                document.getElementById('discountPercentageError').textContent = '';
+                document.getElementById('offerTypeError').textContent = '';
+                document.getElementById('selectItemError').textContent = '';
+                document.getElementById('expiryDateError').textContent = '';
+            }
+
+            function addOfferRow(offer, selectedItemName){
+                const table = document.getElementById('offerTable').getElementsByTagName('tbody')[0];
+                const row = table.insertRow();
+
+                row.insertCell(0).textContent = table.rows.length;
+                row.insertCell(1).textContent = offer.offerName;
+                row.insertCell(2).textContent = offer.discountPercentage;
+                row.insertCell(3).textContent = offer.offerType;
+                row.insertCell(4).textContent = selectedItemName;
+                row.insertCell(5).textContent = new Date(offer.expireDate).toLocaleDateString();
+
+                const statusCell = row.insertCell(6);
+
+                const statusSpan = document.createElement('span');
+                statusSpan.textContent = offer.status ? 'Active' : 'Inactive';
+
+                statusSpan.style.color = 'White';
+                statusSpan.style.backgroundColor = offer.status ? 'green' : 'red';
+                statusSpan.style.padding = '5px 10px';
+                statusSpan.style.borderRadius = '25px';
+                statusSpan.style.textAlign = 'center';
+                statusSpan.style.display = 'inline-block';
+
+                statusCell.appendChild(statusSpan);
+
+                const actionCell = row.insertCell(7);
+                const dropdown = document.createElement('div');
+                dropdown.className = 'dropdown';
+
+                dropdown.innerHTML =  `
+        <button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+          &#x22EE;
+        </button>
+        <ul class="dropdown-menu">
+            <li><button class="dropdown-item text-info" onclick="toggleOfferStatus('${offer._id}', ${offer.status})">${offer.status ? 'Deactivate' : 'Activate'}</button></li>
+            <li><button class="dropdown-item text-danger" onclick="deleteOffer('${offer._id}', this)">Delete</button></li>
+        </ul>
+    `;
+
+            actionCell.appendChild(dropdown);
+
+            }
+
+        window.toggleOfferStatus = function (offerId, currentStatus){
+            const newStatus = !currentStatus;
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: `You are about to ${newStatus ? 'active' : 'deactivate'} this offer.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, proceed',
+                cancelButtonText: 'No, cancel'
+            }).then((result) => {
+                if(result.isConfirmed){
+                    fetch(`/admin/toggleOfferStatus/${offerId}`,{
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ status: newStatus})
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if(data.success){
+                            Swal.fire('Success', 'Offer status updated successfully', 'success').then(() =>{
+                                location.reload();
+                            });
+                        }else{
+                            Swal.fire('Error', 'Failed to update status', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        Swal.fire('Error', 'An error occurred while updating status!', 'error');
+                    });
+                }
+            });
+        };
+
+        window.deleteOffer = function(offerId, element){
+            Swal.fire({
+                title: 'Are you sure?',
+                text: `You won't be able to revert this!`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText:'Yes, delete it!'
+            }).then((result) => {
+                if(result.isConfirmed){
+                    fetch(`/admin/deleteOffer/${offerId}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if(data.success){
+                            Swal.fire('Deleted', 'The offer has been deleted.', 'success');
+                            const row = element.closest('tr');
+                            row.remove();
+                        }else{
+                            Swal.fire('Error', 'Failed to delete the offer', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        Swal.fire('Error', 'An error occurred while deleting the offer', 'error');
+                    });
+                }
+            });
+        };
+
+        });
+    </script>
+
+    <%- include('../adminLayouts/pageFooter.ejs') %>
+            <%- include('../adminLayouts/footer.ejs') %>

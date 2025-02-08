@@ -28,6 +28,16 @@ const userSchema = new schema({
     is_verified: {
         type: Boolean,
         default: false
+    },
+    resetPasswordToken: {
+        type: String
+    },
+    resetPasswordExpires: {
+        type: Date
+    },
+    wallet: {
+        type: Number,
+        default: 0
     }
 },
     { timestamps: true }

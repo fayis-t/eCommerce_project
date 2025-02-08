@@ -92,5 +92,6 @@ module.exports = {
     generateOtp,
     sendOtpEmail,
     verifyOtp,
-    resendOtp
+    resendOtp,
+    transporter
 }

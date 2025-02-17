@@ -433,6 +433,7 @@ const loadAllProducts = async (req, res) => {
      try {
           const user = req.session.userid;
           const products = await productModel.find({ is_listed: true }).populate('category');
+
           const categories= await categoryModel.find({ is_listed: true });
           
           const activeOffers = await Offer.find({
@@ -466,7 +467,6 @@ const loadAllProducts = async (req, res) => {
                };
                
           });
-
           res.render('product', { products: productData, user, categories });
      } catch (error) {
           console.log(error);
@@ -477,8 +477,7 @@ const loadAllProducts = async (req, res) => {
 const loadFilterProducts = async (req, res) => {
      try {
           const { category, sort, search } = req.query;
-          let query = {};
-          const product = await productModel.find({ is_listed: true }).populate('category').sort(query);
+          let query = { is_listed: true };
 
           // Filter by category
           if (category && category !== '*') {
@@ -495,8 +494,14 @@ const loadFilterProducts = async (req, res) => {
                query.name = { $regex: search, $options: 'i' }; 
           }
 
+          // Fetch active offers
+          const activeOffers = await Offer.find({ 
+               status: true,
+               expiryDate: {$gte: new Date()}
+          });
+
           // Fetch products from the database
-          let productsQuery = productModel.find(query);
+          let productsQuery = productModel.find(query).populate('category');
 
           // Apply sorting at the database level
           if (sort) {
@@ -513,43 +518,43 @@ const loadFilterProducts = async (req, res) => {
                }
           }
 
-           const activeOffers = await Offer.find({ 
-               status: true,
-               expiryDate: {$gte: new Date()}
-            });
+          const products = await productsQuery.exec();
 
-            const productData = product.map(p =>{
+          const productData = products.map(product =>{
                let applicableOffer = null;
                let offerPrice = null;
 
-               const productOffer = activeOffers.find(offer => offer.offerType === 'product' && offer.selectItem.equals(p._id));
-               const categoryOffer = activeOffers.find(offer => offer.offerType === 'category' && offer.selectItem.equals(p.category._id));
+               const productOffer = activeOffers.find(offer => offer.offerType === 'product' && offer.selectItem.equals(product._id));
+               const categoryOffer = activeOffers.find(offer => offer.offerType === 'category' && offer.selectItem.equals(product.category._id));
 
                if(productOffer) applicableOffer = productOffer;
                else if(categoryOffer) applicableOffer = categoryOffer;
 
+               if(productOffer){
+                    applicableOffer = productOffer;
+               }else if(categoryOffer){
+                    applicableOffer = categoryOffer;
+               }
+
                if(applicableOffer){
-                    offerPrice = p.price - (p.price * (applicableOffer.discountPercentage / 100));
+                    offerPrice = product.price - (product.price * (applicableOffer.discountPercentage / 100));
                }
 
                return {
-                    ...p._doc,
-                    offer: applicableOffer,
-                    offerPrice,
+                    ...product._doc,
+                    offer: applicableOffer ? applicableOffer : null,
+                    offerPrice: offerPrice !== null ? offerPrice : product.price,
                     discountPercentage: applicableOffer ? applicableOffer.discountPercentage : 0
                }
           });
 
-          const products = await productsQuery.exec();
-          res.json({products, product: productData});
+          res.json({ products, productData });
 
      } catch (error) {
           console.error('Error on loading filter products:', error);
           res.status(500).json({ error: 'Failed to load products' });
      }
 };
-
-
 
 
 const loadProductDetails = async (req, res) => {

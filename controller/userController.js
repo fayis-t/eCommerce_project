@@ -591,14 +591,41 @@ const loadFilterProducts = async (req, res) => {
 const loadProductDetails = async (req, res) => {
      try {
           const user = req.session.userid ? req.session.userid : null;
-          // console.log(user);
-
           const products = await productModel.find({ is_listed: true }).limit(4);
           const { id } = req.params;
-          // console.log(id);
-          const product = await productModel.findOne({ _id: id });
+          const product = await productModel.findOne({ _id: id }).populate('category');
 
-          res.render('product-details', { product, products, user });
+          const activeOffers = await Offer.find({
+               status: true,
+               expiryDate: {$gte: new Date()}
+          });
+
+          let applicableOffer = null;
+          let offerPrice = null;
+
+          const productOffer = activeOffers.find(offer => offer.offerType === 'product' && offer.selectItem.equals(product._id));
+          const categoryOffer = activeOffers.find(offer => offer.offerType === 'category' && offer.selectItem.equals(product.category._id));
+
+          if(productOffer) applicableOffer = productOffer;
+          else if(categoryOffer) applicableOffer = categoryOffer;
+
+          if(applicableOffer){
+               offerPrice = product.price - (product.price * (applicableOffer.discountPercentage / 100));
+          }
+
+          const relatedProducts = await productModel.find({
+               category: product.category._id,
+               _id: { $ne: product._id }
+          }).limit(4);
+
+          res.render('product-details', {
+               product: {
+                    ...product._doc,
+                    offerPrice,
+                    discountPercentage: applicableOffer ? applicableOffer.discountPercentage : 0
+               },
+               offer: applicableOffer,
+               products: relatedProducts, user });
      } catch (error) {
           console.log(error);
      }

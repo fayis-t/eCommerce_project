@@ -71,71 +71,76 @@
                             <h4 style="font-size: 24px; color: #333;">
                                 <%= product.name %>
                             </h4>
-
-                            <% if(product.offerPrice !== null){ %>
-                            <div style="padding-top: 15px;">
-                                <span style="font-size: 16px; color: #888; text-decoration: line-through; margin-left: 10px;">
-                                    ₹ <%= product.price %>
-                                </span>
-                                <span style="font-size: 20px; color: #d9534f; font-weight: bold; margin-left: 10px;">
-                                    ₹ <%= product.price %>
-                                </span>
-                                <% if(product.offer){ %>
-                                <span style="font-size: 14px; color: #d9534f; font-weight: bold; margin-left: 10px;">
-                                    (<%= product.discountPercentage %>% OFF)
-                                </span>
-                                <% } %>
-                            </div>
-                            <% } %>
-
-                            <p style="font-size: 16px; color: #888; margin-top: 15px;">
-                                <%= product.description %>
-                            </p>
-
-                            <div style="padding-top: 15px;">
-                                <span>Stock:</span>
-                                <% if (product.stock===0) { %>
-                                    <span style="color: red;">Out of Stock</span>
-                                    <% } else if (product.stock> 0 && product.stock < 10) { %>
-                                            <span style="color: orange;">Limited Stock</span>
-                                            <% } else { %>
-                                                <span style="color: green;">Available</span>
-                                                <% } %>
-                            </div>
-                            <input type="hidden" value="<%= product._id %>" id="productId">
-                            <input type="hidden" value="<%= product.stock %>" id="productStock">
-                            <div class="flex-w flex-r-m p-b-10">
-                                <div class="size-204 flex-w flex-m respon6-next">
-                                    <!-- Quantity Selector -->
-                                    <div class="wrap-num-product flex-w m-r-20 m-tb-30">
-                                        <!-- Decrease Quantity Button -->
-                                        <div class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m"
-                                            id="decrease-btn">
-                                            <i class="fs-16 zmdi zmdi-minus"></i>
+                                    <% if(product.offerPrice !==null){ %>
+                                        <div style="padding-top: 15px;">
+                                            <span
+                                                style="font-size: 16px; color: #888; text-decoration: line-through;">
+                                                ₹ <%= product.price.toFixed(2) %>
+                                                <br>
+                                            </span>
+                                            <span
+                                                style="font-size: 20px; color: #C61616; font-weight: bold;">
+                                                ₹ <%= product.offerPrice.toFixed(2) %>
+                                            </span>
+                                            <span style="font-size: 14px; color: #C61616; font-weight: bold;">
+                                                <%= product.discountPercentage %>% OFF
+                                            </span>
                                         </div>
-
-                                        <!-- Quantity Input -->
-                                        <input class="mtext-104 cl3 txt-center num-product" type="number"
-                                            name="num-product" id="quantity" value="1" min="1"
-                                            max="<%= product.stock %>" inputmode="none">
-
-                                        <!-- Increase Quantity Button -->
-                                        <div class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m"
-                                            id="increase-btn">
-                                            <i class="fs-16 zmdi zmdi-plus"></i>
+                                    <% }else{ %>
+                                        <div style="padding-top: 15px;">
+                                            <span
+                                                style="font-size: 16px; color: #888;">
+                                                ₹ <%= product.price.toFixed(2) %>
+                                            </span>
                                         </div>
-                                    </div>
+                                    <% } %>    
 
-                                    <!-- Add to Cart Button -->
-                                    <button
-                                        class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04 js-addcart-detail"
-                                        id="addToCart" <%=product.stock===0 ? 'disabled' : '' %>>
-                                        Add to cart
-                                    </button>
-                                </div>
-                            </div>
+                                        <p style="font-size: 16px; color: #888; margin-top: 15px;">
+                                            <%= product.description %>
+                                        </p>
 
+                                            <div style="padding-top: 15px;">
+                                                <span>Stock:</span>
+                                                <% if (product.stock===0) { %>
+                                                    <span style="color: red;">Out of Stock</span>
+                                                    <% } else if (product.stock> 0 && product.stock < 10) { %>
+                                                            <span style="color: orange;">Limited Stock</span>
+                                                            <% } else { %>
+                                                                <span style="color: green;">Available</span>
+                                                                <% } %>
+                                            </div>
+                                            <input type="hidden" value="<%= product._id %>" id="productId">
+                                            <input type="hidden" value="<%= product.stock %>" id="productStock">
+                                            <div class="flex-w flex-r-m p-b-10">
+                                                <div class="size-204 flex-w flex-m respon6-next">
+                                                    <!-- Quantity Selector -->
+                                                    <div class="wrap-num-product flex-w m-r-20 m-tb-30">
+                                                        <!-- Decrease Quantity Button -->
+                                                        <div class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m"
+                                                            id="decrease-btn">
+                                                            <i class="fs-16 zmdi zmdi-minus"></i>
+                                                        </div>
 
+                                                        <!-- Quantity Input -->
+                                                        <input class="mtext-104 cl3 txt-center num-product"
+                                                            type="number" name="num-product" id="quantity" value="1"
+                                                            min="1" max="<%= product.stock %>" inputmode="none">
+
+                                                        <!-- Increase Quantity Button -->
+                                                        <div class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m"
+                                                            id="increase-btn">
+                                                            <i class="fs-16 zmdi zmdi-plus"></i>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Add to Cart Button -->
+                                                    <button
+                                                        class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04 js-addcart-detail"
+                                                        id="addToCart" <%=product.stock===0 ? 'disabled' : '' %>>
+                                                        Add to cart
+                                                    </button>
+                                                </div>
+                                            </div>
                         </div>
                     </div>
                 </div>
@@ -276,7 +281,6 @@
         </section>
 
         <!-- Related Products -->
-        <!-- Related Products -->
         <section class="sec-relate-product bg0 p-t-45 p-b-105">
             <div class="container">
                 <div class="p-b-45">
@@ -294,19 +298,15 @@
                                 <div class="card-body p-0" style="position: relative;">
                                     <img src="/uploads/<%= product.images[0] %>" alt="IMG-PRODUCT" class="card-img-top"
                                         style="width: 100%; height: 250px; object-fit: cover;">
-                                    <a href="#" class="btn btn-primary btn-sm text-white"
-                                        style="position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); z-index: 10;">
-                                        Quick View
-                                    </a>
                                 </div>
                                 <div class="card-footer text-center" style="padding: 10px;">
-                                    <a href="product-detail.html"
+                                    <a href="/product/<%= product._id %>"
                                         class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6"
                                         style="font-size: 16px; display: block; color: #333;">
                                         <%= product.name %>
                                     </a>
                                     <span class="stext-105 cl3" style="font-size: 18px; color: #444;">
-                                        ₹ <%= product.price %>
+                                        ₹ <%= product.price.toFixed(2) %>
                                     </span>
                                 </div>
                             </div>

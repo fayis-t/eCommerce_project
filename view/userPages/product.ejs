@@ -129,14 +129,14 @@
                                     </a>
                                     <% if(product.offerPrice !== null){ %>
                                         <span class="stext-105 cl3" style="text-decoration: line-through; color: #888;">
-                                            ₹ <%= product.price %>
+                                            ₹ <%= product.price.toFixed(2) %>
                                         </span>
                                         <span class="stext-105 cl3" style="color: #C61616; font-size: 18px; font-weight: bold;">
                                             ₹ <%= product.offerPrice.toFixed(2) %>
                                         </span>
                                     <% }else{ %>
                                         <span class="stext-105 cl3">
-                                            ₹ <%= product.price %>
+                                            ₹ <%= product.price.toFixed(2) %>
                                         </span>
                                     <% } %>
                                 </div>
@@ -205,8 +205,8 @@
 
                                     <span class="stext-105 cl3">
                                         ${productDetails.offerPrice !== null && productDetails.offerPrice < product.price 
-                                        ? `<div><small style= 'text-decoration: line-through; opacity: 70%;'>₹ ${product.price}</small></div>
-                                        <div><span style='font-weight: bold; color: #C61616;'>₹ ${ productDetails.offerPrice.toFixed(2) }</span></div>` : `₹ ${product.price}`}
+                                        ? `<div><small style= 'text-decoration: line-through; opacity: 70%;'>₹ ${product.price.toFixed(2)}</small></div>
+                                        <div><span style='font-weight: bold; color: #C61616;'>₹ ${ productDetails.offerPrice.toFixed(2) }</span></div>` : `₹ ${product.price.toFixed(2)}`}
                                     </span>
                                 </div>
 

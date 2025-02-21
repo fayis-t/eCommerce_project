@@ -184,14 +184,14 @@
 								<h5>
 									<% if(product.offerPrice !== null){ %>
 										<div style="text-decoration: line-through; color: #888; font-size: 14px;">
-											₹<%= product.price %>
+											₹<%= product.price.toFixed(2) %>
 										</div>
 										<div style="color: #c61616; font-size: 18px; font-weight: bold;">
 											₹ <%= product.offerPrice.toFixed(2) %>
 										</div>
 									<% }else{ %>
 										<div>
-											₹<%= product.price %>
+											₹<%= product.price.toFixed(2) %>
 										</div>
 									<% } %>	
 								</h5>

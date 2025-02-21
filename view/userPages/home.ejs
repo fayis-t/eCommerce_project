@@ -3,13 +3,13 @@
 	<style>
 		.offer-tag{
 			position: absolute;
-			top: 5px;
+			top: 10px;
 			left: 10px;
 			background-color: rgb(198, 22, 22);
 			color: white;
 			padding: 5px 10px;
-			border-radius: 5px;
-			font-size: 12px;
+			border-radius: 3px;
+			font-size: 15px;
 			font-weight: bold;
 			z-index: 10;
 		}
@@ -109,10 +109,6 @@
 								<span class="block1-name ltext-102 trans-04 p-b-8">
 									Women
 								</span>
-
-								<span class="block1-info stext-102 trans-04">
-									Spring 2018
-								</span>
 							</div>
 
 							<div class="block1-txt-child2 p-b-4 trans-05">
@@ -133,10 +129,6 @@
 							<div class="block1-txt-child1 flex-col-l">
 								<span class="block1-name ltext-102 trans-04 p-b-8">
 									Men
-								</span>
-
-								<span class="block1-info stext-102 trans-04">
-									Spring 2018
 								</span>
 							</div>
 
@@ -174,7 +166,7 @@
 						</a>	
 						<% if(product.offer){ %>
 							<span class="offer-tag">
-								<%= product.offer.discountPercentage %>% off
+								<%= product.offer.discountPercentage %>% Off
 							</span>
 						<% } %>	
 						</div>
@@ -195,7 +187,7 @@
 											₹<%= product.price %>
 										</div>
 										<div style="color: #c61616; font-size: 18px; font-weight: bold;">
-											₹
+											₹ <%= product.offerPrice.toFixed(2) %>
 										</div>
 									<% }else{ %>
 										<div>

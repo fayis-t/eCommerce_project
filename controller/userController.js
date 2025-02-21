@@ -15,8 +15,40 @@ const { application } = require('express');
 const loadHome = async (req, res) => {
      try {
           const user = req.session.userid;
-          const products = await productModel.find().limit(4);
-          res.render('home', { products, user });
+          const products = await productModel.find({ is_listed: true }).limit(4).populate('category');
+
+          const activeOffers = await Offer.find({
+               status: true,
+               expiryDate: {$gte: new Date()}
+          });
+
+          const visibleProducts = products.filter(product => {
+               return product.is_listed === true && product.category && product.category.is_listed === true;
+          });
+
+          const productData = visibleProducts.map(product => {
+               let applicableOffer = null;
+               let offerPrice = null;
+
+               const productOffer = activeOffers.find(offer => offer.offerType === 'product' && offer.selectItem.equals(product._id));
+               const categoryOffer = activeOffers.find(offer => offer.offerType === 'category' && offer.selectItem.equals(product.category._id));
+
+               if(productOffer) applicableOffer = productOffer;
+               else if(categoryOffer) applicableOffer = categoryOffer;
+
+               if(applicableOffer){
+                    offerPrice = product.price - (product.price * (applicableOffer.discountPercentage / 100));
+               }
+
+               return {
+                    ...product._doc,
+                    offer: applicableOffer,
+                    offerPrice,
+                    discountPercentage: applicableOffer ? applicableOffer.discountPercentage : 0
+               };
+          });
+
+          res.render('home', { products: productData, user });
      } catch (error) {
           console.log(error);
      };
@@ -433,7 +465,6 @@ const loadAllProducts = async (req, res) => {
      try {
           const user = req.session.userid;
           const products = await productModel.find({ is_listed: true }).populate('category');
-
           const categories= await categoryModel.find({ is_listed: true });
           
           const activeOffers = await Offer.find({

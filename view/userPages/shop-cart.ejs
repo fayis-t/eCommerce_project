@@ -26,22 +26,28 @@
                             <tr class="table_head">
                                 <th class="column-1">Product</th>
                                 <th class="column-2"></th>
-                                <th class="column-3">Price</th>
-                                <th class="column-4">Quantity</th>
-                                <th class="column-5">Total</th>
+                                <th class="column-3" style="padding-left: 17px">Price</th>
+                                <th class="column-4" style="padding-right: 30px">Quantity</th>
+                                <th class="column-5" style="padding-right: 55px">Total</th>
                             </tr>
 
-                            <% if (cartData && cartData.items.length > 0) { %>
+                            <% if (cartData && cartData.items && cartData.items.length > 0) { %>
                                 <% cartData.items.forEach((item) => { %>
                                     <tr class="table_row">
-                                        <td class="column-1">
+                                        <td class="column-1" style="width: 120px">
                                             <input type="hidden" id="productid" value="<%= item.productId._id %>">
-                                            <div class="how-itemcart1 cart-remove">
+                                            <div class="how-itemcart1 cart-remove" style="width: 75px">
                                                 <img src="/uploads/<%= item.productId.images[0] %>" alt="<%= item.productId.name %>">
                                             </div>
                                         </td>
                                         <td class="column-2"><%= item.productId.name %></td>
-                                        <td class="column-3" id="productPrice">₹ <%= item.productId.price.toFixed(2) %></td>
+
+                                        <% if(item.offerPrice && item.offerPrice > 0){ %>
+                                            <td class="column-3" id="productPrice">₹ <%= item.offerPrice.toFixed(2) %></td>
+                                        <% }else{ %>
+                                            <td class="column-3" id="productPrice">₹ <%= item.productId.price.toFixed(2) %></td>
+                                        <% } %>
+
                                         <td class="column-4">
                                             <input type="hidden" value="<%= item.productId.stock %>" id="productStock">
                                             <div class="wrap-num-product flex-w m-l-auto m-r-0">
@@ -54,12 +60,17 @@
                                                 </div>
                                             </div>
                                         </td>
-                                        <td class="column-5">₹ <%= (item.productId.price * item.quantity).toFixed(2) %></td>
+                                        <td class="column-5">₹ <%= ((item.offerPrice || item.productId.price ) * item.quantity).toFixed(2) %></td>
                                     </tr>
                                 <% }) %>
                             <% } else { %>
                                 <tr>
-                                    <td colspan="5">Your cart is empty.</td>
+                                    <td colspan="5" style="text-align: center;
+                                    text-align: center;
+                                    padding-top: 20px;
+                                    padding-bottom: 20px;
+                                    color: red"
+                                    >Cart is empty.</td>
                                 </tr>
                             <% } %>
 
@@ -122,7 +133,7 @@
                         <div class="size-208">
                             <span class="mtext-101 cl2">
                                 Total:
-                            </span>
+                            </span>     
                         </div>
  
                         <div class="size-209 p-t-1">
@@ -254,49 +265,43 @@
         });
     }
 
-
-
-// Add event listener to handle product removal
-const cartItems = document.querySelectorAll('.cart-remove');
-cartItems.forEach((item) => {
-    item.addEventListener('click', () => {
-        const productId = document.getElementById('productid').value;
-        Swal.fire({
-            title: 'Do you want to remove this item?',
-            showCancelButton: true,
-            confirmButtonText: 'Yes'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                fetch(`/deleteItem?id=${productId}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' }
-                })
-                    .then((response) => {
-                        if (!response.ok) {
-                            throw new Error('Network response was not ok');
-                        }
-                        return response.json();
+    // Add event listener to handle product removal
+    const cartItems = document.querySelectorAll('.cart-remove');
+    cartItems.forEach((item) => {
+        item.addEventListener('click', () => {
+            const productId = document.getElementById('productid').value;
+            Swal.fire({
+                title: 'Do you want to remove this item?',
+                showCancelButton: true,
+                confirmButtonText: 'Yes'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/deleteItem?id=${productId}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
                     })
-                    .then((data) => {
-                        if (data.success) {
-                            location.reload();
-                        } else {
-                            Swal.fire('Failed to remove item from the cart', '', 'error');
-                        }
-                    })
-                    .catch((error) => {
-                        console.error('Fetch error:', error);
-                        Swal.fire('An error occurred', '', 'error');
-                    });
-            }
+                        .then((response) => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.json();
+                        })
+                        .then((data) => {
+                            if (data.success) {
+                                location.reload();
+                            } else {
+                                Swal.fire('Failed to remove item from the cart', '', 'error');
+                            }
+                        })
+                        .catch((error) => {
+                            console.error('Fetch error:', error);
+                            Swal.fire('An error occurred', '', 'error');
+                        });
+                }
+            });
         });
     });
-});
 
-
-
-
-
-    </script>
+</script>
     
 <%- include('../userLayouts/footer.ejs') %>

@@ -428,23 +428,74 @@ const changePassword = async (req, res) => {
 const loadCart = async (req, res) => {
      try {
           const user = req.session.userid;
-          const cartData = await cartModel.findOne({ userId: user })
+
+          if (!user) return res.redirect('/login');
+
+          let cartData = await cartModel.findOne({ userId: user })
                .populate({
                     path: 'items.productId',
-                    select: ' _id name price images stock',
+                    select: ' _id name price images stock category',
                });
-          const totalPrice = cartData.items.reduce((acc, item) => {
-               const itemTotal = item.productId.price * (item.quantity || 1); // Default quantity to 1 if not present
-               return acc + itemTotal;
-          }, 0);
+
+          if(!cartData){
+               return res.render('shop-cart', { user, cartData:{items: [] }, totalPrice: 0, cartProducts: [] });
+          }
+
+          const activeOffers = await Offer.find({
+               status: true,
+               expiryDate: { $gte: new Date() }
+          });
+
+          let totalPrice = 0;
+
+          const cartProducts = cartData.items.map(item => {
+               const product = item.productId;
+               let offerPrice = null;
+               let applicableOffer = null;
+
+               const productOffer = activeOffers.find(offer => offer.offerType === 'product' && offer.selectItem.equals(product._id));
+               
+               const categoryOffer = activeOffers.find(offer => offer.offerType === 'category' && product.category && offer.selectItem.equals(product.category._id));
+
+               if (productOffer && categoryOffer) {
+                    applicableOffer = productOffer.discountPercentage > categoryOffer.discountPercentage ? productOffer : categoryOffer;
+                } else {
+                    applicableOffer = productOffer || categoryOffer;
+                }
+               
+               if(applicableOffer){
+                    offerPrice = product.price - (product.price * (applicableOffer.discountPercentage / 100));
+               }
+
+               const finalPrice = offerPrice !== null ? offerPrice : product.price;
+
+               totalPrice += (item.quantity || 1) * finalPrice;
+
+               return {
+                    ...item._doc,
+                    offerPrice,
+                    discountPercentage: applicableOffer ? applicableOffer.discountPercentage : 0
+               }
+          });
+
+          cartData = cartData.toObject();
+          
+          // const totalPrice = cartData.items.reduce((acc, item) => {
+          //      const itemTotal = item.productId.price * (item.quantity || 1); // Default quantity to 1 if not present
+          //      return acc + itemTotal;
+          // }, 0);
           //  console.log(totalPrice);
+
+          // console.log('here is the cartProducts: ',JSON.stringify(cartProducts, null, 2));
+          cartData.items = cartProducts;
+          // console.log('cart data aftere:', JSON.stringify(cartData, null, 2));
 
           res.render('shop-cart', { user, cartData, totalPrice });
      } catch (error) {
           console.log(error);
           res.status(500).send('Error loading cart');
      }
-};
+};                            
 
 
 const deleteAddress = async (req, res) => {

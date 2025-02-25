@@ -118,7 +118,7 @@ const removeItem = async (req, res) => {
         const cartData = await Cart.findOne({userId: user});
 
         const productIndex = cartData.items.findIndex(item => item.productId.toString() === productId);
-        console.log(productIndex);
+        // console.log(productIndex);
         
         const removed = cartData.items.splice(productIndex-1, 1);  
 

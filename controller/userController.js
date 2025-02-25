@@ -76,9 +76,13 @@ const userLogin = async (req, res) => {
                return res.status(400).json({ error: 'All fields are required' });
           }
 
-          const userData = await User.findOne({ email });
+          // Email validation regex
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!emailRegex.test(email)) {
+               return res.status(400).json({ error: "Invalid email format." });
+          }
 
-          // console.log(userData);
+          const userData = await User.findOne({ email });
 
           if (!userData) {
                res.status(400).json({ error: 'User not found' });
@@ -185,6 +189,12 @@ const sendEmail = async (req, res) => {
 
           if (!email) {
                return res.status(404).json({ success: false, message: 'Email is required' });
+          }
+
+          // Email validation regex
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!emailRegex.test(email)) {
+               return res.status(400).json({ success: false,  message: "Invalid email format." });
           }
 
           const user = await User.findOne({ email });

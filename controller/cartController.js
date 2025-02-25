@@ -75,9 +75,6 @@ const addToCart = async (req, res) => {
 };
 
 
-
-
-
 const updateCart = async (req, res) => {
     const { productId, newQuantity } = req.body;
     const userId = req.session.userid

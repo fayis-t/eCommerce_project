@@ -464,7 +464,6 @@ const loadCart = async (req, res) => {
                let applicableOffer = null;
 
                const productOffer = activeOffers.find(offer => offer.offerType === 'product' && offer.selectItem.equals(product._id));
-               
                const categoryOffer = activeOffers.find(offer => offer.offerType === 'category' && product.category && offer.selectItem.equals(product.category._id));
 
                if (productOffer && categoryOffer) {
@@ -559,6 +558,8 @@ const loadAllProducts = async (req, res) => {
                };
                
           });
+
+          console.log('product Data :', productData);
           res.render('product', { products: productData, user, categories });
      } catch (error) {
           console.log(error);

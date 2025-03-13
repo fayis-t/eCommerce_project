@@ -74,6 +74,7 @@ const resendOtp = async (req, res)=> {
         const email = req.session.userData.email;
         const otp = generateOtp();
         console.log('resend otp: ',otp);
+        
         const expireOtp = new Date(Date.now() + 2 * 60 * 1000);
         await sendOtpEmail(email, otp);
         req.session.userData.otp = otp;
